@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthProvider';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { LoginPage } from './components/auth/LoginPage';
 import { Layout } from './components/layout/Layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { InventarioPage } from './pages/InventarioPage';
@@ -10,16 +13,32 @@ import { ConfiguracionPage } from './pages/ConfiguracionPage';
 export const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/inventario" element={<InventarioPage />} />
-          <Route path="/ventas" element={<VentasPage />} />
-          <Route path="/clientes" element={<ClientesPage />} />
-          <Route path="/crm" element={<CrmPage />} />
-          <Route path="/configuracion" element={<ConfiguracionPage />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/inventario" element={<InventarioPage />} />
+            <Route path="/ventas" element={<VentasPage />} />
+            <Route path="/clientes" element={<ClientesPage />} />
+            <Route path="/crm" element={<CrmPage />} />
+            <Route
+              path="/configuracion"
+              element={
+                <ProtectedRoute roles={['admin']}>
+                  <ConfiguracionPage />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 };

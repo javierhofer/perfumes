@@ -2,18 +2,29 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { api } from '../../api/client';
 import { esDeudaCritica } from '../../hooks/deudaCritica';
+import { useAuth } from '../../contexts/AuthProvider';
+import { Rol } from '../../lib/auth';
 
-const items = [
+interface NavItem {
+  to: string;
+  label: string;
+  icon: string;
+  showCritical?: boolean;
+  roles?: Rol[];
+}
+
+const items: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: '📊' },
   { to: '/inventario', label: 'Inventario', icon: '🧴' },
   { to: '/ventas', label: 'Ventas', icon: '💵' },
   { to: '/clientes', label: 'Clientes', icon: '👥', showCritical: true },
   { to: '/crm', label: 'CRM Re-compra', icon: '💬' },
-  { to: '/configuracion', label: 'Configuracion', icon: '⚙️' },
+  { to: '/configuracion', label: 'Configuracion', icon: '⚙️', roles: ['admin'] },
 ];
 
 export const Sidebar = () => {
   const [deudaCriticaCount, setDeudaCriticaCount] = useState(0);
+  const { sesion } = useAuth();
 
   useEffect(() => {
     const cargar = async () => {
@@ -29,6 +40,11 @@ export const Sidebar = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const visibleItems = items.filter((it) => {
+    if (!it.roles) return true;
+    return sesion ? it.roles.includes(sesion.rol) : false;
+  });
+
   return (
     <aside className="w-60 bg-slate-900 text-slate-100 flex flex-col py-6 px-4 min-h-screen">
       <div className="flex items-center gap-2 mb-10 px-2">
@@ -41,7 +57,7 @@ export const Sidebar = () => {
         </div>
       </div>
       <nav className="flex flex-col gap-1">
-        {items.map((it) => (
+        {visibleItems.map((it) => (
           <NavLink
             key={it.to}
             to={it.to}
