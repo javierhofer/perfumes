@@ -31,11 +31,11 @@ export const DashboardPage = () => {
   }, []);
 
   if (loading && !metrics) {
-    return <div className="p-8 text-slate-500">Cargando metricas...</div>;
+    return <div className="p-4 md:p-6 lg:p-8 text-slate-500">Cargando metricas...</div>;
   }
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-lg p-4">
           Error: {error}. Asegurate de que el backend este accesible.
         </div>
@@ -44,10 +44,10 @@ export const DashboardPage = () => {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <header className="mb-8 flex items-center justify-between">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      <header className="mb-6 md:mb-8 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Dashboard</h1>
           <p className="text-sm text-slate-500 mt-1">Vision general del negocio</p>
         </div>
         <button
@@ -58,7 +58,7 @@ export const DashboardPage = () => {
         </button>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
         <MetricCard titulo="Ventas Totales" valor={metrics!.ventasTotales} icono="💰" acento="purple" />
         <MetricCard titulo="Ganancia Neta" valor={metrics!.gananciaNeta} icono="📊" acento="green" />
         <MetricCard
@@ -70,13 +70,13 @@ export const DashboardPage = () => {
         />
         <Link
           to="/clientes?conDeuda=true"
-          className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4 hover:border-rose-300 hover:shadow-md transition-all"
+          className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-5 flex items-center gap-4 hover:border-rose-300 hover:shadow-md transition-all"
         >
           <MetricCard titulo="Cuentas por Cobrar" valor={metrics!.cuentasPorCobrar} icono="⏳" acento="rose" />
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
         <div className="lg:col-span-2">
           <SalesChart data={metrics!.ventasUltimos30Dias} />
         </div>

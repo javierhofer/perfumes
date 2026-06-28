@@ -1,0 +1,100 @@
+COMANDOS BASICOS DE GIT - GUIA RAPIDA
+=====================================
+
+CONFIGURACION INICIAL (una sola vez)
+-------------------------------------
+git config --global user.name "Tu Nombre"
+  Configura tu nombre para los commits.
+
+git config --global user.email "tu@email.com"
+  Configura tu email para los commits.
+
+git config --global init.defaultBranch main
+  Define 'main' como la rama por defecto para repos nuevos.
+
+
+FLUJO BASICO DE TRABAJO
+-----------------------
+git status
+  Muestra el estado actual de los archivos del repo:
+  - Archivos modificados
+  - Archivos nuevos (untracked)
+  - Archivos listos para commitear (staged)
+
+git add <archivo>
+  Agrega UN archivo especifico al staging (preparacion para commit).
+
+git add .
+  Agrega TODOS los archivos modificados/nuevos al staging.
+
+git restore --staged <archivo>
+  SACA un archivo del staging (deja de estar listo para commitear,
+  pero conserva los cambios en tu disco local).
+
+git commit -m "Mensaje descriptivo"
+  Confirma los cambios staged y los guarda en el historial local.
+  El -m es el mensaje que describe que hiciste.
+
+git push
+  Envia tus commits locales al servidor remoto (GitHub, GitLab, etc).
+
+git pull
+  Descarga los cambios del remoto y los fusiona con tu rama local.
+  Sirve para mantenerse sincronizado con el equipo.
+
+
+INSPECCIONAR EL HISTORIAL
+-------------------------
+git log
+  Muestra TODOS los commits de la rama actual (mas info por linea).
+
+git log --oneline
+  Muestra los commits en UNA SOLA LINEA cada uno (mas resumido).
+
+git log -1 --stat
+  Muestra el ULTIMO commit con detalle de archivos modificados.
+
+git log --oneline -5
+  Muestra los ultimos 5 commits en una sola linea.
+
+git diff
+  Muestra los cambios que AUN NO estan en staging.
+
+git diff --staged
+  Muestra los cambios que YA estan en staging (listos para commitear).
+
+
+RUTA DE ARCHIVOS Y NAVEGACION
+-----------------------------
+cd <carpeta>
+  Cambia de directorio.
+
+cd ..
+  Vuelve al directorio padre.
+
+cd C:\Pruebaperfumes
+  Va a un directorio absoluto con backslashes (Windows).
+
+pwd
+  Imprime el directorio actual (Linux/Mac).
+
+
+ATAJOS PARA CASOS COMUNES
+-------------------------
+git add . ; git commit -m "mensaje"
+  Stage + commit en una sola linea (PowerShell). En Bash usar && en vez de ;.
+
+git commit -am "mensaje"
+  Agrega al staging Y commitea SOLO archivos que YA EXISTIAN
+  (modificados). NO funciona con archivos nuevos.
+
+
+SEGURIDAD (EVITAR PROBLEMAS)
+----------------------------
+NUNCA hacer:
+  - git push --force (puede borrar trabajo del equipo)
+  - git reset --hard (pierde cambios no commiteados)
+
+SIEMPRE verificar antes de:
+  - git status   (ver que hay para commitear)
+  - git log      (ver donde estas parado)

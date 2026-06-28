@@ -95,17 +95,17 @@ export const ClientesPage = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <header className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      <header className="mb-4 md:mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Clientes</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Clientes</h1>
           <p className="text-sm text-slate-500 mt-1">
             {conDeuda
               ? `${clientes.length} cliente${clientes.length === 1 ? '' : 's'} con deuda activa`
               : `${clientes.length} clientes registrados`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {conDeuda && (
             <button
               onClick={() => setSearchParams({})}
@@ -120,14 +120,16 @@ export const ClientesPage = () => {
               className="text-sm bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg"
               title={`Exportar ${filtrados.length} clientes a CSV`}
             >
-              📥 Exportar CSV
+              📥 <span className="hidden sm:inline">Exportar CSV</span>
+              <span className="sm:hidden">CSV</span>
             </button>
           )}
           <button
             onClick={() => setShowForm(true)}
-            className="text-sm bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm"
+            className="text-sm bg-brand-600 hover:bg-brand-700 text-white px-3 md:px-4 py-2 rounded-lg font-medium shadow-sm"
           >
-            + Nuevo Cliente
+            + <span className="hidden sm:inline">Nuevo Cliente</span>
+            <span className="sm:hidden">Nuevo</span>
           </button>
         </div>
       </header>

@@ -57,10 +57,10 @@ export const InventarioPage = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <header className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      <header className="mb-4 md:mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Inventario</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Inventario</h1>
           <p className="text-sm text-slate-500 mt-1">Catalogo de fragancias · {perfumes.length} productos</p>
         </div>
       </header>

@@ -22,7 +22,12 @@ const items: NavItem[] = [
   { to: '/configuracion', label: 'Configuracion', icon: '⚙️', roles: ['admin'] },
 ];
 
-export const Sidebar = () => {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const [deudaCriticaCount, setDeudaCriticaCount] = useState(0);
   const { sesion } = useAuth();
 
@@ -46,7 +51,7 @@ export const Sidebar = () => {
   });
 
   return (
-    <aside className="w-60 bg-slate-900 text-slate-100 flex flex-col py-6 px-4 min-h-screen">
+    <>
       <div className="flex items-center gap-2 mb-10 px-2">
         <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-lg">
           ✨
@@ -62,6 +67,7 @@ export const Sidebar = () => {
             key={it.to}
             to={it.to}
             end={it.to === '/'}
+            onClick={() => onNavigate?.()}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                 isActive
@@ -83,6 +89,31 @@ export const Sidebar = () => {
       <div className="mt-auto pt-6 px-2 text-[10px] text-slate-500">
         v1.0 · Clean Architecture
       </div>
-    </aside>
+    </>
+  );
+};
+
+export const Sidebar = ({ open, onClose }: SidebarProps) => {
+  return (
+    <>
+      <aside className="hidden md:flex w-60 bg-slate-900 text-slate-100 flex-col py-6 px-4 min-h-screen">
+        <SidebarContent />
+      </aside>
+
+      <aside
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-slate-900 text-slate-100 flex flex-col py-6 px-4 transform transition-transform duration-300 ease-in-out md:hidden ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Cerrar menú"
+          className="absolute top-4 right-4 text-slate-300 hover:text-white text-2xl leading-none"
+        >
+          ×
+        </button>
+        <SidebarContent onNavigate={onClose} />
+      </aside>
+    </>
   );
 };

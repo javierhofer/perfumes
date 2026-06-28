@@ -22,10 +22,10 @@ export const CrmPage = () => {
   }, []);
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <header className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+      <header className="mb-4 md:mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">CRM Re-compra</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-800">CRM Re-compra</h1>
           <p className="text-sm text-slate-500 mt-1">
             Clientes sin compras hace mas de 120 dias · {clientes.length} {clientes.length === 1 ? 'oportunidad' : 'oportunidades'}
           </p>

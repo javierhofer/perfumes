@@ -108,10 +108,10 @@ export const VentasPage = () => {
     !!busqueda || filtroEstado !== 'Todos' || filtroTipoPago !== 'Todos' || !!filtroDesde || !!filtroHasta;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <header className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      <header className="mb-4 md:mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Ventas</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Ventas</h1>
           <p className="text-sm text-slate-500 mt-1">
             {filtradas.length} de {ventas.length} ventas
           </p>
@@ -126,9 +126,10 @@ export const VentasPage = () => {
           {filtradas.length > 0 && (
             <button
               onClick={exportarCSV}
-              className="text-sm bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm"
+              className="text-sm bg-brand-600 hover:bg-brand-700 text-white px-3 md:px-4 py-2 rounded-lg font-medium shadow-sm"
             >
-              📥 Exportar CSV
+              📥 <span className="hidden sm:inline">Exportar CSV</span>
+              <span className="sm:hidden">CSV</span>
             </button>
           )}
         </div>
