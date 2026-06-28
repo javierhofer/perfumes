@@ -1,0 +1,6 @@
+Es verdad, nos falta una gestión completa de clientes. Por favor, expande el sistema (Backend, Domain y Frontend) para incluir una vista dedicada a "Clientes y Cuentas Corrientes". Debe permitir:
+
+1. CRUD de Clientes: Poder dar de alta un nuevo cliente con Nombre, Teléfono y Notas Personales.
+2. Ficha del Cliente (Historial): Al hacer clic en un cliente, se debe abrir un panel o modal que muestre todas las compras que ha realizado en el pasado y cuáles de ellas fueron "fiadas" (Cuenta Corriente).
+3. Gestión de Deudas (Registrar Pago): En la ficha del cliente debe figurar su "Saldo Deudor Total". Añade un caso de uso 'RegistrarPagoClienteUseCase' y un botón en el frontend para que el vendedor pueda ingresar un monto en pesos (ej: abonó $20.000) y que ese dinero se descuente de sus ventas pendientes de pago, actualizando su saldo deudor.
+4. Datos de prueba: Añade al seed histórico de clientes un par de ejemplos que tengan saldos deudores activos y otros que estén al día.

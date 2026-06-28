@@ -1,0 +1,626 @@
+{
+  "perfumes": [
+    {
+      "id": "p1",
+      "marca": "Dior",
+      "fragancia": "Sauvage",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 3,
+      "precioCosto": 45000,
+      "precioVenta": 78000
+    },
+    {
+      "id": "p2",
+      "marca": "Dior",
+      "fragancia": "J'adore",
+      "tipo": "EDP",
+      "mililitros": 100,
+      "stock": 8,
+      "precioCosto": 52000,
+      "precioVenta": 89000
+    },
+    {
+      "id": "p3",
+      "marca": "Chanel",
+      "fragancia": "Bleu de Chanel",
+      "tipo": "EDP",
+      "mililitros": 100,
+      "stock": 2,
+      "precioCosto": 58000,
+      "precioVenta": 98000
+    },
+    {
+      "id": "p4",
+      "marca": "Chanel",
+      "fragancia": "Coco Mademoiselle",
+      "tipo": "EDP",
+      "mililitros": 100,
+      "stock": 6,
+      "precioCosto": 61000,
+      "precioVenta": 102000
+    },
+    {
+      "id": "p5",
+      "marca": "Chanel",
+      "fragancia": "Chance",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 10,
+      "precioCosto": 49000,
+      "precioVenta": 84000
+    },
+    {
+      "id": "p6",
+      "marca": "Paco Rabanne",
+      "fragancia": "1 Million",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 12,
+      "precioCosto": 28000,
+      "precioVenta": 52000
+    },
+    {
+      "id": "p7",
+      "marca": "Paco Rabanne",
+      "fragancia": "Invictus",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 9,
+      "precioCosto": 26000,
+      "precioVenta": 49000
+    },
+    {
+      "id": "p8",
+      "marca": "Paco Rabanne",
+      "fragancia": "Phantom",
+      "tipo": "Colonia",
+      "mililitros": 100,
+      "stock": 15,
+      "precioCosto": 24000,
+      "precioVenta": 46000
+    },
+    {
+      "id": "p9",
+      "marca": "Versace",
+      "fragancia": "Eros",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 7,
+      "precioCosto": 30000,
+      "precioVenta": 56000
+    },
+    {
+      "id": "p10",
+      "marca": "Versace",
+      "fragancia": "Dylan Blue",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 5,
+      "precioCosto": 32000,
+      "precioVenta": 58000
+    },
+    {
+      "id": "p11",
+      "marca": "Carolina Herrera",
+      "fragancia": "Bad Boy",
+      "tipo": "EDT",
+      "mililitros": 100,
+      "stock": 4,
+      "precioCosto": 38000,
+      "precioVenta": 67000
+    },
+    {
+      "id": "p12",
+      "marca": "Carolina Herrera",
+      "fragancia": "Good Girl",
+      "tipo": "EDP",
+      "mililitros": 80,
+      "stock": 6,
+      "precioCosto": 42000,
+      "precioVenta": 72000
+    },
+    {
+      "id": "p13",
+      "marca": "Yves Saint Laurent",
+      "fragancia": "Libre",
+      "tipo": "EDP",
+      "mililitros": 90,
+      "stock": 11,
+      "precioCosto": 54000,
+      "precioVenta": 92000
+    },
+    {
+      "id": "p14",
+      "marca": "Yves Saint Laurent",
+      "fragancia": "Y",
+      "tipo": "EDP",
+      "mililitros": 100,
+      "stock": 8,
+      "precioCosto": 48000,
+      "precioVenta": 85000
+    },
+    {
+      "id": "p15",
+      "marca": "Jean Paul Gaultier",
+      "fragancia": "Le Male",
+      "tipo": "EDT",
+      "mililitros": 125,
+      "stock": 13,
+      "precioCosto": 35000,
+      "precioVenta": 62000
+    }
+  ],
+  "clientes": [
+    {
+      "id": "c1",
+      "nombre": "Lucia Mendez",
+      "telefono": "+5491155551001",
+      "historialCompras": [
+        "v1",
+        "v9"
+      ],
+      "notasPersonales": "Prefiere fragancias frescas. Siempre paga en efectivo.",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": [
+        "Frecuente",
+        "Solo efectivo"
+      ]
+    },
+    {
+      "id": "c2",
+      "nombre": "Martin Suarez",
+      "telefono": "+5491155551002",
+      "historialCompras": [
+        "v2",
+        "v10"
+      ],
+      "notasPersonales": "Cliente frecuente de Paco Rabanne. Le gusta recibir recordatorios.",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": [
+        "Frecuente",
+        "VIP"
+      ]
+    },
+    {
+      "id": "c3",
+      "nombre": "Sofia Castro",
+      "telefono": "+5491155551003",
+      "historialCompras": [
+        "v3",
+        "v13"
+      ],
+      "notasPersonales": "Cta cte habilitada. Compra perfumes de autor para regalos.",
+      "saldoDeudor": 84000,
+      "activo": true,
+      "etiquetas": [
+        "VIP",
+        "Cta cte"
+      ]
+    },
+    {
+      "id": "c4",
+      "nombre": "Diego Fernandez",
+      "telefono": "+5491155551004",
+      "historialCompras": [
+        "v4"
+      ],
+      "notasPersonales": "",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": [
+        "Nuevo"
+      ]
+    },
+    {
+      "id": "c5",
+      "nombre": "Camila Ruiz",
+      "telefono": "+5491155551005",
+      "historialCompras": [
+        "v5",
+        "v11"
+      ],
+      "notasPersonales": "Le encantan los florales.",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": [
+        "Frecuente"
+      ]
+    },
+    {
+      "id": "c6",
+      "nombre": "Joaquin Pereira",
+      "telefono": "+5491155551006",
+      "historialCompras": [
+        "v6",
+        "v14"
+      ],
+      "notasPersonales": "",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": []
+    },
+    {
+      "id": "c7",
+      "nombre": "Valentina Lopez",
+      "telefono": "+5491155551007",
+      "historialCompras": [
+        "v7"
+      ],
+      "notasPersonales": "Cta cte. Compras grandes a fin de mes.",
+      "saldoDeudor": 102000,
+      "activo": true,
+      "etiquetas": [
+        "Cta cte"
+      ]
+    },
+    {
+      "id": "c8",
+      "nombre": "Sebastian Diaz",
+      "telefono": "+5491155551008",
+      "historialCompras": [
+        "v8",
+        "v12"
+      ],
+      "notasPersonales": "Vino recomendado por su esposa. Probar Jean Paul Gaultier.",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": [
+        "Nuevo"
+      ]
+    },
+    {
+      "id": "c9",
+      "nombre": "Mariano Gimenez",
+      "telefono": "+5491155551009",
+      "historialCompras": [
+        "v15",
+        "v16",
+        "v17"
+      ],
+      "notasPersonales": "Deuda importante. Saldra en 3 cuotas. Confiable.",
+      "saldoDeudor": 180000,
+      "activo": true,
+      "etiquetas": [
+        "Fiable",
+        "Cta cte"
+      ]
+    },
+    {
+      "id": "c10",
+      "nombre": "Florencia Acuna",
+      "telefono": "+5491155551010",
+      "historialCompras": [
+        "v18"
+      ],
+      "notasPersonales": "Cliente nueva. Pago siempre al dia.",
+      "saldoDeudor": 0,
+      "activo": true,
+      "etiquetas": [
+        "Nuevo"
+      ]
+    }
+  ],
+  "ventas": [
+    {
+      "clienteId": "c1",
+      "productoId": "p1",
+      "cantidad": 1,
+      "fecha": "2026-06-17T22:03:26.704Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 78000,
+      "costoUnitario": 45000,
+      "total": 78000,
+      "id": "v1",
+      "montoPagado": 78000
+    },
+    {
+      "clienteId": "c2",
+      "productoId": "p6",
+      "cantidad": 2,
+      "fecha": "2026-06-12T22:03:26.705Z",
+      "tipoPago": "Transferencia",
+      "estadoPago": "Pagado",
+      "precioUnitario": 52000,
+      "costoUnitario": 28000,
+      "total": 104000,
+      "id": "v2",
+      "montoPagado": 104000
+    },
+    {
+      "clienteId": "c3",
+      "productoId": "p3",
+      "cantidad": 1,
+      "fecha": "2026-06-07T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 98000,
+      "costoUnitario": 58000,
+      "total": 98000,
+      "id": "v3",
+      "montoPagado": 98000
+    },
+    {
+      "clienteId": "c4",
+      "productoId": "p9",
+      "cantidad": 1,
+      "fecha": "2026-05-28T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 56000,
+      "costoUnitario": 30000,
+      "total": 56000,
+      "id": "v4",
+      "montoPagado": 56000
+    },
+    {
+      "clienteId": "c5",
+      "productoId": "p2",
+      "cantidad": 1,
+      "fecha": "2026-05-13T22:03:26.705Z",
+      "tipoPago": "Transferencia",
+      "estadoPago": "Pagado",
+      "precioUnitario": 89000,
+      "costoUnitario": 52000,
+      "total": 89000,
+      "id": "v5",
+      "montoPagado": 89000
+    },
+    {
+      "clienteId": "c6",
+      "productoId": "p7",
+      "cantidad": 1,
+      "fecha": "2026-04-28T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 49000,
+      "costoUnitario": 26000,
+      "total": 49000,
+      "id": "v6",
+      "montoPagado": 49000
+    },
+    {
+      "clienteId": "c7",
+      "productoId": "p4",
+      "cantidad": 1,
+      "fecha": "2026-03-24T22:03:26.705Z",
+      "tipoPago": "CuentaCorriente",
+      "estadoPago": "Pendiente",
+      "precioUnitario": 102000,
+      "costoUnitario": 61000,
+      "total": 102000,
+      "id": "v7",
+      "montoPagado": 0
+    },
+    {
+      "clienteId": "c8",
+      "productoId": "p10",
+      "cantidad": 1,
+      "fecha": "2026-02-22T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 58000,
+      "costoUnitario": 32000,
+      "total": 58000,
+      "id": "v8",
+      "montoPagado": 58000
+    },
+    {
+      "clienteId": "c1",
+      "productoId": "p11",
+      "cantidad": 1,
+      "fecha": "2026-02-07T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 67000,
+      "costoUnitario": 38000,
+      "total": 67000,
+      "id": "v9",
+      "montoPagado": 67000
+    },
+    {
+      "clienteId": "c2",
+      "productoId": "p12",
+      "cantidad": 1,
+      "fecha": "2026-01-18T22:03:26.705Z",
+      "tipoPago": "Transferencia",
+      "estadoPago": "Pagado",
+      "precioUnitario": 72000,
+      "costoUnitario": 42000,
+      "total": 72000,
+      "id": "v10",
+      "montoPagado": 72000
+    },
+    {
+      "clienteId": "c5",
+      "productoId": "p13",
+      "cantidad": 1,
+      "fecha": "2025-12-29T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 92000,
+      "costoUnitario": 54000,
+      "total": 92000,
+      "id": "v11",
+      "montoPagado": 92000
+    },
+    {
+      "clienteId": "c8",
+      "productoId": "p15",
+      "cantidad": 2,
+      "fecha": "2026-06-22T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 62000,
+      "costoUnitario": 35000,
+      "total": 124000,
+      "id": "v12",
+      "montoPagado": 124000
+    },
+    {
+      "clienteId": "c3",
+      "productoId": "p5",
+      "cantidad": 1,
+      "fecha": "2026-06-25T22:03:26.705Z",
+      "tipoPago": "CuentaCorriente",
+      "estadoPago": "Pendiente",
+      "precioUnitario": 84000,
+      "costoUnitario": 49000,
+      "total": 84000,
+      "id": "v13",
+      "montoPagado": 0
+    },
+    {
+      "clienteId": "c6",
+      "productoId": "p14",
+      "cantidad": 1,
+      "fecha": "2026-06-20T22:03:26.705Z",
+      "tipoPago": "Transferencia",
+      "estadoPago": "Pagado",
+      "precioUnitario": 85000,
+      "costoUnitario": 48000,
+      "total": 85000,
+      "id": "v14",
+      "montoPagado": 85000
+    },
+    {
+      "clienteId": "c9",
+      "productoId": "p13",
+      "cantidad": 1,
+      "fecha": "2026-05-08T22:03:26.705Z",
+      "tipoPago": "CuentaCorriente",
+      "estadoPago": "Pendiente",
+      "precioUnitario": 92000,
+      "costoUnitario": 54000,
+      "total": 92000,
+      "id": "v15",
+      "montoPagado": 0
+    },
+    {
+      "clienteId": "c9",
+      "productoId": "p4",
+      "cantidad": 1,
+      "fecha": "2026-05-23T22:03:26.705Z",
+      "tipoPago": "CuentaCorriente",
+      "estadoPago": "Parcial",
+      "precioUnitario": 102000,
+      "costoUnitario": 61000,
+      "total": 102000,
+      "id": "v16",
+      "montoPagado": 20000
+    },
+    {
+      "clienteId": "c9",
+      "productoId": "p8",
+      "cantidad": 1,
+      "fecha": "2026-06-07T22:03:26.705Z",
+      "tipoPago": "CuentaCorriente",
+      "estadoPago": "Pendiente",
+      "precioUnitario": 46000,
+      "costoUnitario": 24000,
+      "total": 46000,
+      "id": "v17",
+      "montoPagado": 0
+    },
+    {
+      "clienteId": "c10",
+      "productoId": "p6",
+      "cantidad": 1,
+      "fecha": "2026-06-19T22:03:26.705Z",
+      "tipoPago": "Efectivo",
+      "estadoPago": "Pagado",
+      "precioUnitario": 52000,
+      "costoUnitario": 28000,
+      "total": 52000,
+      "id": "v18",
+      "montoPagado": 52000
+    }
+  ],
+  "pagos": [
+    {
+      "id": "pg1",
+      "clienteId": "c9",
+      "monto": 60000,
+      "fecha": "2026-06-12T22:03:26.705Z",
+      "nota": "A cuenta de Le Male y primera cuota de Coco Mademoiselle",
+      "ventasAfectadas": [
+        {
+          "ventaId": "v16",
+          "montoAplicado": 60000
+        }
+      ]
+    },
+    {
+      "id": "pg2",
+      "clienteId": "c9",
+      "monto": 20000,
+      "fecha": "2026-06-24T22:03:26.705Z",
+      "nota": "Segundo pago parcial",
+      "ventasAfectadas": [
+        {
+          "ventaId": "v16",
+          "montoAplicado": 20000
+        }
+      ]
+    }
+  ],
+  "configuracion": {
+    "umbralStockCritico": 3,
+    "umbralDeudaCritica": 100000,
+    "diasRecompra": 120,
+    "datosNegocio": {
+      "nombre": "Perfumes Manager",
+      "telefono": "",
+      "email": "",
+      "direccion": "",
+      "cuit": ""
+    },
+    "etiquetasPersonalizadas": [
+      {
+        "nombre": "VIP",
+        "color": "brand"
+      },
+      {
+        "nombre": "Frecuente",
+        "color": "emerald"
+      },
+      {
+        "nombre": "Fiable",
+        "color": "sky"
+      },
+      {
+        "nombre": "Nuevo",
+        "color": "violet"
+      },
+      {
+        "nombre": "Cta cte",
+        "color": "amber"
+      },
+      {
+        "nombre": "Solo efectivo",
+        "color": "slate"
+      },
+      {
+        "nombre": "Solo transferencia",
+        "color": "blue"
+      },
+      {
+        "nombre": "Cumpleanos pronto",
+        "color": "rose"
+      }
+    ],
+    "plantillaWhatsapp": "Hola {nombre}! Te escribo de tu perfumeria de confianza. Hace {dias} dias que no renovas tu {perfume}. Tengo stock disponible, queres que te reserve uno?",
+    "moneda": "ARS",
+    "simboloMoneda": "$",
+    "temaVisual": "claro",
+    "idioma": "es",
+    "notificacionesActivas": false,
+    "numeracionTickets": {
+      "prefijo": "V-",
+      "siguiente": 1
+    }
+  }
+}

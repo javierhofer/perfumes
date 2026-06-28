@@ -1,0 +1,50 @@
+Actúa como un Arquitecto de Software Experto y Desarrollador Full-Stack Senior. Necesito que diseñes e implementes la estructura inicial de un sistema web de gestión de ventas e inventario diseñado específicamente para un revendedor de perfumes. 
+
+Quiero que el backend aplique estrictamente los principios de Clean Architecture (Arquitectura Limpia) para asegurar que las reglas de negocio estén completamente desacopladas de la base de datos y de la interfaz de usuario. El frontend debe ser una interfaz web moderna, limpia y scannable.
+
+A continuación, te detallo los requisitos y el alcance del sistema:
+
+---
+
+### 1. REGLAS DE NEGOCIO Y DOMINIO (Core)
+El sistema debe manejar las siguientes entidades y lógicas de negocio:
+*   **Producto / Perfume:** Debe contener ID, Marca, Fragancia, Tipo (EDT, EDP, Parfum, Colonia), Tamaño en mililitros (ml), Stock actual, Precio de Costo y Precio de Venta.
+    *   *Regla:* El margen de ganancia real debe ser calculado dinámicamente: (Precio Venta - Precio Costo).
+*   **Cliente:** ID, Nombre, Teléfono/WhatsApp y un Historial de Compras.
+*   **Venta:** ID, ClienteID, ProductoID, Cantidad, Fecha de Venta, Tipo de Pago (Efectivo, Transferencia, Cuenta Corriente/Fiado) y Estado del Pago (Pagado, Pendiente).
+    *   *Regla:* Al registrar una venta, el stock del producto debe disminuir automáticamente. Si el stock llega a 3 unidades o menos, debe disparar una Alerta de Reposición Crítica.
+
+---
+
+### 2. ARQUITECTURA DEL BACKEND (Clean Architecture)
+Quiero que estructures el backend dividiéndolo claramente en las siguientes capas abstractas (puedes representarlo en carpetas o módulos según la tecnología que elijas, priorizando un diseño fuertemente tipado):
+
+1.  **Capa de Dominio (Domain):** Entidades puras (Perfume, Cliente, Venta) y contratos/interfaces de repositorios (`IPerfumeRepository`, `IVentaRepository`). No debe tener dependencias externas.
+2.  **Capa de Aplicación (Application):** Casos de uso del sistema como servicios o handlers. Debe incluir:
+    *   `RegistrarVentaUseCase` (valida stock, descuenta inventario, guarda venta).
+    *   `ObtenerAlertasStockUseCase` (filtra productos con stock <= 3).
+    *   `ObtenerClientesParaRecompraUseCase` (identifica clientes cuya última compra fue hace más de 120 días).
+3.  **Capa de Infraestructura (Infrastructure):** Implementación de los repositorios, acceso a datos (simulado o persistencia ligera) y controladores/rutas de la API.
+
+---
+
+### 3. INTERFAZ DE USUARIO (Frontend Web)
+Diseña una SPA (Single Page Application) o una interfaz web responsiva utilizando componentes reutilizables con un diseño moderno (estilo Tailwind CSS, paleta de colores profesional gris/púrpura/slate). Debe incluir tres vistas principales:
+
+*   **Dashboard:**
+    *   Tarjetas con métricas clave: Ventas Totales ($), Ganancia Neta total ($), Total de Fragancias en Stock y Total de Cuentas por Cobrar (Saldos Pendientes).
+    *   Sección visible de "Alertas de Reposición" basadas en el caso de uso del backend.
+    *   Un gráfico o representación visual del flujo de ventas.
+*   **Inventario (Catálogo):**
+    *   Tabla interactiva para buscar, filtrar por marca/fragancia y ver costos/precios de forma clara.
+    *   Botón de acción rápida "⚡ Registrar Venta" en cada fila para simular la descarga de stock en vivo.
+*   **CRM Inteligente (Retención):**
+    *   Lista de clientes que necesitan re-compra (basado en la regla de los 120 días), mostrando el nombre del cliente, el perfume que usa y un botón de acción rápida para abrir un enlace de WhatsApp Web (`https://wa.me/...`) con un mensaje plantilla pre-redactado de seguimiento.
+
+---
+
+### 4. ENTREGABLES REQUERIDOS
+Por favor, provéeme con:
+1.  La estructura de carpetas/archivos recomendada para mantener limpia la arquitectura.
+2.  El código fuente del Backend organizado por capas (implementa lógica real para los Casos de Uso, puedes mockear el almacenamiento en memoria para esta demo).
+3.  El código del Frontend conectado a estos servicios o controladores. Puedes estructurarlo en archivos separados o unificados según consideres más limpio para su ejecución inmediata como prototipo funcional.
