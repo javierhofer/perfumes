@@ -37,7 +37,7 @@ export const DashboardPage = () => {
     return (
       <div className="p-8">
         <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-lg p-4">
-          Error: {error}. Asegurate de que el backend este corriendo en :3001.
+          Error: {error}. Asegurate de que el backend este accesible.
         </div>
       </div>
     );
