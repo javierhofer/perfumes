@@ -2,6 +2,8 @@
 
 Sistema web para revendedor de perfumes con Clean Architecture en backend y SPA moderna en frontend.
 
+<!-- webhook deployment trigger -->
+
 ## Stack
 
 - **Backend:** Node.js + TypeScript + Express (Clean Architecture en 3 capas: Domain / Application / Infrastructure).
