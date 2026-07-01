@@ -1,6 +1,8 @@
 import { Router, Request, Response, raw } from 'express';
 import * as crypto from 'crypto';
 import { parseCommand } from './commandParser';
+
+// Webhook controller: handshake + receptor de mensajes
 import {
   handleVentas,
   handleAyuda,
