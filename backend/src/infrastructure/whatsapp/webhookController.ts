@@ -115,9 +115,8 @@ const processPayload = async (
 
       if (incomingPhoneId && incomingPhoneId !== expectedPhoneId) {
         console.warn(
-          `[whatsapp] Mensaje dirigido a phone_id=${incomingPhoneId}, esperado=${expectedPhoneId}. Ignorando.`
+          `[whatsapp] AVISO: mensaje dirigido a phone_id=${incomingPhoneId}, esperado=${expectedPhoneId}. WA_PHONE_ID en Render podria estar mal configurado.`
         );
-        return;
       }
 
       for (const msg of messages) {
