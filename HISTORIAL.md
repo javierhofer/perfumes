@@ -145,6 +145,30 @@ backend/src/
 8. **Datos del negocio**: Form simple de texto
 9. **Tema oscuro**: CSS variables + clase `dark`
 10. **Notificaciones**: Permiso del navegador con fallback
+11. **Webhook WhatsApp**: handshake responde 200 inmediato y procesa async para evitar reintentos de Meta
+12. **Validacion firma HMAC**: opt-in via `WA_APP_SECRET`; si esta seteada, sin firma = 401. Si no, deja pasar (warning)
+13. **Whitelist por numero**: `WA_ALLOWED_NUMBERS` vacio = rechaza todo (defensa por default)
+
+## 📲 Integracion WhatsApp (agregado en ronda 4)
+
+- **Comandos**: `ventas`, `ventas 7d`/`15d`/`30d`/`90d`, `ventas hoy`, `ventas mes`, `ayuda`
+- **Stack**: Cloud API oficial de Meta, sin dependencias extra salvo `axios`
+- **Archivos nuevos**:
+  - `src/infrastructure/whatsapp/whatsappClient.ts` — POST a graph.facebook.com con retry
+  - `src/infrastructure/whatsapp/commandParser.ts` — parsea comandos con normalizacion (tildes, mayusculas)
+  - `src/infrastructure/whatsapp/commandHandlers.ts` — wrappea `ListarVentasUseCase` y aplica filtro de fecha
+  - `src/infrastructure/whatsapp/templates.ts` — formato plain text (WhatsApp no renderiza markdown)
+  - `src/infrastructure/whatsapp/webhookController.ts` — Express router: GET handshake, POST con firma + whitelist + dispatch
+- **Archivos extra**: `src/shared/monedaHelper.ts` (cache TTL de `simboloMoneda`)
+- **Archivos modificados**:
+  - `src/infrastructure/http/app.ts` — monta el router del webhook **antes** de `express.json()` para conservar `raw body` para HMAC
+  - `src/infrastructure/http/server.ts` — loguea endpoints del webhook + warn si faltan envs
+  - `package.json` — +`axios`, +`dotenv`
+- **Test de humo** (validado local):
+  - `GET /webhook?hub.verify_token=...` -> 200 con echo del `hub.challenge`
+  - Token incorrecto -> 403
+  - `POST /webhook` con payload simulado `ventas 30d` -> 200, listado generado con 8 ventas del mes
+- **Reutiliza**: `ListarVentasUseCase` (sin cambios), repositorios JSON, configuracion
 
 ## 🔄 Regenerar dependencias desde cero
 

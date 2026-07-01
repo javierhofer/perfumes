@@ -21,4 +21,16 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/dashboard/alertas-stock`);
   console.log(`   GET    /api/configuracion`);
   console.log(`   PUT    /api/configuracion`);
+  console.log(`   GET    /webhook   (WhatsApp handshake)`);
+  console.log(`   POST   /webhook   (WhatsApp mensajes)`);
+
+  const waConfigured =
+    process.env.WA_PHONE_ID && process.env.WA_TOKEN && process.env.WA_VERIFY_TOKEN;
+  if (!waConfigured) {
+    console.warn(
+      `[server] WhatsApp NO configurado: faltan WA_PHONE_ID / WA_TOKEN / WA_VERIFY_TOKEN. El webhook respondara pero no procesara mensajes.`
+    );
+  } else {
+    console.log(`[server] WhatsApp webhook activo para phone_id=${process.env.WA_PHONE_ID}`);
+  }
 });

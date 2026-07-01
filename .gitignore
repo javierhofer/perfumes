@@ -1,3 +1,6 @@
-node_modules/ 
+node_modules/
+backend/dist/
 frontend/dist/
+backend/.env
+backend/data/db.json
 frontend/.env.local

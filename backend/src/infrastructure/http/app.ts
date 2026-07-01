@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import { getContainer } from '../../shared/container';
 import { seedDatabase } from '../seed/seedData';
 import { buildPerfumesRouter } from './routes/perfumes.routes';
@@ -7,15 +8,21 @@ import { buildVentasRouter } from './routes/ventas.routes';
 import { buildClientesRouter } from './routes/clientes.routes';
 import { buildDashboardRouter } from './routes/dashboard.routes';
 import { buildConfiguracionRouter } from './routes/configuracion.routes';
+import { buildWhatsappRouter } from '../whatsapp/webhookController';
 import { StockInsuficienteError, ClienteNoEncontradoError, PerfumeNoEncontradoError } from '../../application/use-cases/RegistrarVentaUseCase';
 import { TelefonoDuplicadoError } from '../../application/use-cases/CrearClienteUseCase';
 import { PagoInvalidoError } from '../../application/use-cases/RegistrarPagoClienteUseCase';
 
 export const buildApp = () => {
+  dotenv.config();
+
   seedDatabase();
 
   const app = express();
   app.use(cors());
+
+  app.use(buildWhatsappRouter());
+
   app.use(express.json());
 
   const c = getContainer();
