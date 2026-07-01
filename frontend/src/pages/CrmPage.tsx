@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { ClienteRecompra } from '../types/domain';
 import { formatearFechaLarga } from '../hooks/formato';
@@ -85,6 +86,18 @@ export const CrmPage = () => {
                       >
                         <span>💬</span> Contactar por WhatsApp
                       </a>
+                      <div className="text-[10px] text-slate-400 mt-1 max-w-[180px] leading-tight">
+                        Al hacer clic serás redirigido a WhatsApp LLC. Aplican sus{' '}
+                        <Link
+                          to="/privacidad"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-brand-600"
+                        >
+                          políticas
+                        </Link>
+                        .
+                      </div>
                     </div>
                   </div>
                 </div>

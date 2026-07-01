@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '../../contexts/AuthProvider';
 
@@ -52,6 +52,20 @@ export const Layout = () => {
           </header>
         )}
         <Outlet />
+        <footer className="border-t border-slate-200 bg-white px-4 md:px-8 py-4 text-center text-xs text-slate-500">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <span>v1.0 · Perfumes Manager</span>
+            <span className="text-slate-300">·</span>
+            <Link
+              to="/privacidad"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-600 transition-colors"
+            >
+              Política de Privacidad
+            </Link>
+          </div>
+        </footer>
       </main>
     </div>
   );

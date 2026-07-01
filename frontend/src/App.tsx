@@ -9,6 +9,7 @@ import { CrmPage } from './pages/CrmPage';
 import { ClientesPage } from './pages/ClientesPage';
 import { VentasPage } from './pages/VentasPage';
 import { ConfiguracionPage } from './pages/ConfiguracionPage';
+import { PrivacidadPage } from './pages/PrivacidadPage';
 
 export const App = () => {
   return (
@@ -16,6 +17,7 @@ export const App = () => {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/privacidad" element={<PrivacidadPage />} />
           <Route
             element={
               <ProtectedRoute>
