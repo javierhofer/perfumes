@@ -180,6 +180,29 @@ cd ../frontend
 npm install
 ```
 
+## 🔄 Migración WhatsApp Meta → Baileys (ronda 5)
+
+- **Driver intercambiable**: nueva interfaz `WhatsappTransport` (`backend/src/infrastructure/whatsapp/transport/WhatsappTransport.ts`). El codigo Meta viejo vive en `MetaTransport.ts` y se activa con `WA_TRANSPORT=meta` (rollback).
+- **Baileys / WhatsApp Web**: nueva implementacion `BaileysTransport.ts` usando `@whiskeysockets/baileys`. Conexion por QR, sin Meta Cloud API, sin firmas HMAC, sin plantillas HSM.
+- **Sesion cifrada AES-256-GCM**: `backend/src/infrastructure/whatsapp/session/store.ts` cifra `creds.bin` por chip con clave `WA_SESSION_KEY`. Persiste entre reinicios.
+- **phonePool con failover**: `backend/src/infrastructure/whatsapp/phonePool.ts` maneja N chips, round-robin entre sanos, estados `warming_up / open / degraded / close / logged_out / banned`.
+- **Warm-up gradual**: `safety/warmup.ts` con `WA_WARMUP_DAYS=14` (cap mensajes/dia sube progresivamente desde `WA_WARMUP_START` hasta `WA_WARMUP_END`).
+- **Rate limiter**: `safety/rateLimiter.ts` con `WA_MAX_PER_HOUR` por chip + cooldown por destinatario (`WA_RECIPIENT_COOLDOWN_MS`).
+- **ShadowBan detector**: `safety/shadowBanDetector.ts` mide ratio respuestas/enviados, marca `degraded` si cae bajo `WA_SHADOWBAN_THRESHOLD`.
+- **Customer notifier**: `safety/customerNotifier.ts` responde con el `canalRespaldoTexto` configurable cuando el pool entero cae, asi el cliente no se queda sin derivacion.
+- **Email service**: `infrastructure/notifications/emailService.ts` SMTP nativo (sin deps) para Gmail. Dispara email al admin cuando un chip se banea / desconecta / reconecta.
+- **Endpoints admin**: `GET /webhook/status`, `GET /webhook/qr/:id`, `POST /api/phones`, `DELETE /api/phones/:id`, `POST /api/phones/:id/replace`.
+- **UI**: indicador de estado de chips en `CrmPage.tsx`; campo `canalRespaldoTexto` editable en `ConfiguracionPage.tsx`.
+- **Variables de entorno**: `WA_PHONES`, `WA_SESSION_KEY`, `WA_TRANSPORT`, `WA_MAX_PER_HOUR`, `WA_WARMUP_*`, `WA_SHADOWBAN_THRESHOLD`, `SMTP_*`, `WA_BACKUP_CONTACT`. Las vars Meta (`WA_PHONE_ID`, `WA_TOKEN`, etc) quedan en `.env.example` como referencia para rollback.
+
+## 🔄 Reersion a Meta Cloud API (ronda 6)
+
+- **Driver por env var**: `WA_TRANSPORT=meta` (default) o `baileys` (rollback). Todo el codigo de Baileys queda disponible pero no se usa por default.
+- **MetaTransport funcional**: handshake `hub.mode=subscribe` + `hub.verify_token` + `hub.challenge`, validacion HMAC SHA-256 con `WA_APP_SECRET`, dispatcher async para evitar reintentos de Meta.
+- **Codigo Baileys preservado**: `transport/BaileysTransport.ts`, `phonePool.ts`, `safety/*` siguen en el repo. Para activar: `WA_TRANSPORT=baileys` + `WA_PHONES` + `WA_SESSION_KEY`.
+- **Frontend**: removido el indicador del pool en `CrmPage.tsx` (no aplica a Meta). El campo `canalRespaldoTexto` sigue editable en Configuracion, ahora titulado "Mensaje si Meta esta caido".
+- **Variables de entorno**: `WA_TRANSPORT` (default `meta`), `WA_PHONE_ID`, `WA_TOKEN`, `WA_VERIFY_TOKEN`, `WA_APP_SECRET`, `WA_ALLOWED_NUMBERS`. Vars Baileys (`WA_PHONES`, `WA_SESSION_KEY`, etc) quedan en `.env.example` como referencia para rollback.
+
 ## 📝 Próximas Mejoras Identificadas (no implementadas)
 
 - Módulo de facturación/comprobantes usando la numeración de tickets

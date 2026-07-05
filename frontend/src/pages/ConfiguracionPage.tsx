@@ -26,7 +26,7 @@ interface DraftDeuda { umbralDeudaCritica: number }
 interface DraftCrm { diasRecompra: number }
 interface DraftNegocio { nombre: string; telefono: string; email: string; direccion: string; cuit: string }
 interface DraftEtiquetas { lista: { nombre: string; color: string }[] }
-interface DraftWhatsapp { plantillaWhatsapp: string }
+interface DraftWhatsapp { plantillaWhatsapp: string; canalRespaldoTexto: string }
 interface DraftMoneda { moneda: string; simboloMoneda: string }
 interface DraftTema { temaVisual: string }
 interface DraftIdioma { idioma: string }
@@ -35,7 +35,7 @@ interface DraftTickets { prefijo: string; siguiente: number }
 
 interface SeccionState<T> {
   draft: T;
-  setDraft: (v: T | ((prev: T) => T)) => void;
+  setDraft: (v: Partial<T> | ((prev: T) => Partial<T>)) => void;
   saving: boolean;
   setSaving: (v: boolean) => void;
   saved: boolean;
@@ -46,11 +46,11 @@ const useSeccion = <T,>(initial: T): SeccionState<T> => {
   const [draft, setDraftState] = useState<T>(initial);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const setDraft = (v: T | ((prev: T) => T)) => {
+  const setDraft = (v: Partial<T> | ((prev: T) => Partial<T>)) => {
     if (typeof v === 'function') {
-      setDraftState((prev) => (v as (prev: T) => T)(prev));
+      setDraftState((prev) => ({ ...prev, ...(v as (prev: T) => Partial<T>)(prev) }));
     } else {
-      setDraftState(v);
+      setDraftState((prev) => ({ ...prev, ...v }));
     }
   };
   return { draft, setDraft, saving, setSaving, saved, setSaved };
@@ -64,7 +64,10 @@ export const ConfiguracionPage = () => {
   const crm = useSeccion<DraftCrm>({ diasRecompra: config.diasRecompra });
   const negocio = useSeccion<DraftNegocio>({ ...config.datosNegocio });
   const etiquetas = useSeccion<DraftEtiquetas>({ lista: config.etiquetasPersonalizadas });
-  const whatsapp = useSeccion<DraftWhatsapp>({ plantillaWhatsapp: config.plantillaWhatsapp });
+  const whatsapp = useSeccion<DraftWhatsapp>({
+    plantillaWhatsapp: config.plantillaWhatsapp,
+    canalRespaldoTexto: config.canalRespaldoTexto ?? '',
+  });
   const moneda = useSeccion<DraftMoneda>({ moneda: config.moneda, simboloMoneda: config.simboloMoneda });
   const tema = useSeccion<DraftTema>({ temaVisual: config.temaVisual });
   const idioma = useSeccion<DraftIdioma>({ idioma: config.idioma });
@@ -191,11 +194,24 @@ export const ConfiguracionPage = () => {
             rows={4}
             className="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm resize-none"
           />
+          <div className="mt-3">
+            <Campo label="Mensaje si Meta esta caido" descripcion="Texto que se envia al cliente si el bot no puede responder por una caida de Meta.">
+              <input
+                value={whatsapp.draft.canalRespaldoTexto}
+                onChange={(e) => whatsapp.setDraft({ canalRespaldoTexto: e.target.value })}
+                className="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                placeholder="Escribime tambien a hola@tuempresa.com"
+              />
+            </Campo>
+          </div>
           <div className="mt-2">
             <BotonGuardar
               saving={whatsapp.saving}
               saved={whatsapp.saved}
-              onClick={() => guardar(whatsapp, { plantillaWhatsapp: whatsapp.draft.plantillaWhatsapp })}
+              onClick={() => guardar(whatsapp, {
+                plantillaWhatsapp: whatsapp.draft.plantillaWhatsapp,
+                canalRespaldoTexto: whatsapp.draft.canalRespaldoTexto,
+              })}
               label="Guardar plantilla"
             />
           </div>

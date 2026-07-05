@@ -1,15 +1,15 @@
 import { Router, Request, Response, raw } from 'express';
 import * as crypto from 'crypto';
 import { parseCommand } from './commandParser';
-
-// Webhook controller: handshake + receptor de mensajes
 import {
   handleVentas,
   handleAyuda,
   handleComandoInvalido,
   handleDefault,
 } from './commandHandlers';
-import { sendTextMessage } from './whatsappClient';
+import { sendTextMessage, getTransport } from './whatsappClient';
+import { PhonePool } from './phonePool';
+import { BaileysTransport } from './transport/BaileysTransport';
 
 export interface WhatsappMessage {
   from: string;
@@ -42,20 +42,10 @@ interface WhatsappWebhookPayload {
   entry: WhatsappEntry[];
 }
 
-const verifyToken = (): string => {
-  const t = process.env.WA_VERIFY_TOKEN;
-  if (!t) {
-    throw new Error('[whatsapp] Falta variable de entorno WA_VERIFY_TOKEN');
-  }
-  return t;
-};
-
 const loadAllowedNumbers = (): Set<string> => {
   const raw = process.env.WA_ALLOWED_NUMBERS ?? '';
   if (!raw.trim()) {
-    console.warn(
-      '[whatsapp] WA_ALLOWED_NUMBERS no esta seteado. Todos los mensajes entrantes seran rechazados.'
-    );
+    console.warn('[whatsapp] WA_ALLOWED_NUMBERS no seteado. Todos los mensajes seran rechazados.');
     return new Set();
   }
   const nums = raw
@@ -67,39 +57,29 @@ const loadAllowedNumbers = (): Set<string> => {
 
 const verifySignature = (rawBody: Buffer, signature: string | undefined): boolean => {
   const appSecret = process.env.WA_APP_SECRET;
-
   if (!appSecret) {
-    console.warn(
-      '[whatsapp] WA_APP_SECRET no seteado. Validacion de firma deshabilitada (NO recomendado en produccion).'
-    );
+    console.warn('[whatsapp] WA_APP_SECRET no seteado. Validacion de firma deshabilitada.');
     return true;
   }
-
-  if (!signature) {
-    console.warn('[whatsapp] Peticion sin x-hub-signature-256 en modo produccion. Rechazando.');
-    return false;
-  }
-
+  if (!signature) return false;
   const expected =
-    'sha256=' +
-    crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+    'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
   const sigBuf = Buffer.from(signature);
   const expBuf = Buffer.from(expected);
   if (sigBuf.length !== expBuf.length) return false;
   return crypto.timingSafeEqual(sigBuf, expBuf);
 };
 
-const respond = async (from: string, text: string): Promise<void> => {
-  try {
-    await sendTextMessage(from, text);
-  } catch (err) {
-    console.error(`[whatsapp] No pude responder a ${from}:`, err);
-  }
+const handleIncoming = async (text: string): Promise<string> => {
+  const parsed = parseCommand(text);
+  if (!parsed) return await handleComandoInvalido();
+  if (parsed.cmd === 'ventas') return await handleVentas(parsed.args!);
+  if (parsed.cmd === 'ayuda') return await handleAyuda();
+  return await handleDefault();
 };
 
-const processPayload = async (
-  payload: WhatsappWebhookPayload,
-  allowed: Set<string>
+export const ingestMetaMessage = async (
+  payload: WhatsappWebhookPayload
 ): Promise<void> => {
   if (payload.object !== 'whatsapp_business_account' || !payload.entry) return;
 
@@ -109,6 +89,8 @@ const processPayload = async (
     return;
   }
 
+  const allowed = loadAllowedNumbers();
+
   for (const entry of payload.entry) {
     for (const change of entry.changes) {
       const value = change.value;
@@ -117,65 +99,82 @@ const processPayload = async (
 
       if (incomingPhoneId && incomingPhoneId !== expectedPhoneId) {
         console.warn(
-          `[whatsapp] AVISO: mensaje dirigido a phone_id=${incomingPhoneId}, esperado=${expectedPhoneId}. WA_PHONE_ID en Render podria estar mal configurado.`
+          `[whatsapp] AVISO: mensaje dirigido a phone_id=${incomingPhoneId}, esperado=${expectedPhoneId}.`
         );
       }
 
       for (const msg of messages) {
         if (msg.type !== 'text' || !msg.text) continue;
-
         const from = msg.from;
         if (!allowed.has(from)) {
-          console.warn(
-            `[whatsapp] Mensaje rechazado. from=${from} no esta en WA_ALLOWED_NUMBERS`
-          );
+          console.warn(`[whatsapp] Mensaje rechazado. from=${from} no esta en WA_ALLOWED_NUMBERS.`);
           continue;
         }
 
         const text = msg.text.body;
         console.log(`[whatsapp] Mensaje recibido de ${from}: "${text}"`);
 
-        const parsed = parseCommand(text);
-        let response: string;
-
-        if (!parsed) {
-          response = await handleDefault();
-        } else if (parsed.cmd === 'ventas') {
-          response = await handleVentas(parsed.args!);
-        } else if (parsed.cmd === 'ayuda') {
-          response = await handleAyuda();
-        } else {
-          response = await handleComandoInvalido();
+        try {
+          const response = await handleIncoming(text);
+          await sendTextMessage(from, response);
+        } catch (err) {
+          console.error(`[whatsapp] Error respondiendo a ${from}:`, err);
         }
-
-        await respond(from, response);
       }
     }
   }
 };
 
-export const buildWhatsappRouter = (): Router => {
+export const buildWhatsappRouter = (pool: PhonePool | null): Router => {
   const router = Router();
+  const transport = (process.env.WA_TRANSPORT ?? 'meta').toLowerCase();
 
   router.get('/webhook', (req: Request, res: Response) => {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
+    const verifyToken = process.env.WA_VERIFY_TOKEN;
 
-    try {
-      if (mode === 'subscribe' && token === verifyToken()) {
-        console.log('[whatsapp] Handshake OK con Meta');
-        return res.status(200).send(challenge);
-      }
-      console.warn(
-        `[whatsapp] Handshake rechazado. mode=${mode} tokenMatch=${token === verifyToken()}`
-      );
-      return res.sendStatus(403);
-    } catch (err) {
-      console.error('[whatsapp] Error en handshake:', err);
-      return res.sendStatus(500);
+    if (mode === 'subscribe' && challenge && verifyToken && token === verifyToken) {
+      console.log('[whatsapp] Handshake OK con Meta');
+      return res.status(200).send(challenge);
     }
+
+    return res.json({
+      transport,
+      active: getTransport() !== null,
+      poolHealthy: pool ? pool.poolHealthy() : true,
+    });
   });
+
+  if (transport === 'baileys' && pool) {
+    const QRCode = require('qrcode') as typeof import('qrcode');
+
+    router.get('/webhook/qr/:phoneId', async (req: Request, res: Response) => {
+      const phoneId = req.params['phoneId'];
+      const phone = pool.getPhone(phoneId ?? '');
+      if (!phone) return res.status(404).json({ error: 'phone_not_found' });
+      const t = phone.transport as BaileysTransport;
+      const qr = t.getCurrentQR?.();
+      if (!qr) {
+        return res.json({ ready: true, status: phone.status });
+      }
+      const png = await QRCode.toBuffer(qr, { type: 'png', width: 320 });
+      res.setHeader('Content-Type', 'image/png');
+      res.send(png);
+    });
+
+    router.get('/webhook/status', (_req: Request, res: Response) => {
+      res.json({
+        pool: pool.listPhones().map((p) => ({
+          id: p.id,
+          number: p.number,
+          status: p.status,
+        })),
+        poolHealthy: pool.poolHealthy(),
+      });
+    });
+  }
 
   router.post(
     '/webhook',
@@ -184,8 +183,6 @@ export const buildWhatsappRouter = (): Router => {
       const rawBody = req.body as Buffer;
       const signature = req.header('x-hub-signature-256');
 
-      console.log('[whatsapp] POST /webhook recibido, body bytes:', rawBody?.length ?? 0);
-
       if (!verifySignature(rawBody, signature)) {
         console.warn('[whatsapp] Firma invalida en POST /webhook');
         return res.sendStatus(401);
@@ -193,12 +190,10 @@ export const buildWhatsappRouter = (): Router => {
 
       try {
         const payload = JSON.parse(rawBody.toString('utf8')) as WhatsappWebhookPayload;
-        console.log('[whatsapp] Payload OK, procesando...');
-        processPayload(payload, loadAllowedNumbers())
-          .then(() => console.log('[whatsapp] processPayload termino OK'))
-          .catch((e) => console.error('[whatsapp] processPayload error async:', e));
-        res.sendStatus(200);
-        return;
+        ingestMetaMessage(payload)
+          .then(() => console.log('[whatsapp] Payload procesado OK'))
+          .catch((e) => console.error('[whatsapp] Error procesando payload:', e));
+        return res.sendStatus(200);
       } catch (err) {
         console.error('[whatsapp] Error parseando payload:', err);
         return res.sendStatus(200);
@@ -207,4 +202,22 @@ export const buildWhatsappRouter = (): Router => {
   );
 
   return router;
+};
+
+export const buildInboundDispatcher = (_pool: PhonePool | null) => {
+  return async (from: string, text: string): Promise<void> => {
+    const allowed = loadAllowedNumbers();
+    const normalized = from.replace(/[^\d]/g, '');
+    if (!allowed.has(normalized)) {
+      console.warn(`[whatsapp] Mensaje rechazado de ${from}.`);
+      return;
+    }
+    console.log(`[whatsapp] Mensaje recibido de ${normalized}: "${text}"`);
+    try {
+      const response = await handleIncoming(text);
+      await sendTextMessage(normalized, response);
+    } catch (err) {
+      console.error(`[whatsapp] Error respondiendo a ${normalized}:`, err);
+    }
+  };
 };

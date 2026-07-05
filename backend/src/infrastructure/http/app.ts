@@ -9,19 +9,44 @@ import { buildClientesRouter } from './routes/clientes.routes';
 import { buildDashboardRouter } from './routes/dashboard.routes';
 import { buildConfiguracionRouter } from './routes/configuracion.routes';
 import { buildWhatsappRouter } from '../whatsapp/webhookController';
+import { initPool, getPool } from '../whatsapp/phonePool';
+import { bindMeta, bindPool } from '../whatsapp/whatsappClient';
+import { MetaTransport } from '../whatsapp/transport/MetaTransport';
 import { StockInsuficienteError, ClienteNoEncontradoError, PerfumeNoEncontradoError } from '../../application/use-cases/RegistrarVentaUseCase';
 import { TelefonoDuplicadoError } from '../../application/use-cases/CrearClienteUseCase';
 import { PagoInvalidoError } from '../../application/use-cases/RegistrarPagoClienteUseCase';
 
-export const buildApp = () => {
+export const buildApp = async () => {
   dotenv.config();
-
   seedDatabase();
 
   const app = express();
   app.use(cors());
 
-  app.use(buildWhatsappRouter());
+  const transport = (process.env.WA_TRANSPORT ?? 'meta').toLowerCase();
+
+  if (transport === 'meta') {
+    const meta = new MetaTransport(
+      process.env.WA_PHONE_ID ?? '',
+      process.env.WA_TOKEN ?? ''
+    );
+    await meta.connect({});
+    bindMeta(meta);
+  } else {
+    const pool = await initPool({
+      onMessage: (msg, phoneId) => {
+        console.log(`[app] inbound desde ${phoneId}: ${msg.text}`);
+      },
+      onPhoneStatus: (phoneId, status) => {
+        console.log(`[app] phone=${phoneId} status=${status}`);
+      },
+    });
+    bindPool(pool);
+  }
+
+  const poolOrNull = transport === 'baileys' ? getPool() : null;
+
+  app.use(buildWhatsappRouter(poolOrNull));
 
   app.use(express.json());
 
