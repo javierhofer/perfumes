@@ -27,6 +27,7 @@ export interface Configuracion {
   datosNegocio: DatosNegocio;
   etiquetasPersonalizadas: EtiquetaConfig[];
   plantillaWhatsapp: string;
+  canalRespaldoTexto: string;
   moneda: Moneda;
   simboloMoneda: string;
   temaVisual: TemaVisual;
@@ -58,6 +59,7 @@ export const CONFIG_DEFAULT: Configuracion = {
   ],
   plantillaWhatsapp:
     'Hola {nombre}! Te escribo de tu perfumeria de confianza. Hace {dias} dias que no renovas tu {perfume}. Tengo stock disponible, queres que te reserve uno?',
+  canalRespaldoTexto: '',
   moneda: 'ARS',
   simboloMoneda: '$',
   temaVisual: 'claro',

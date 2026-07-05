@@ -147,6 +147,7 @@ export interface Configuracion {
   datosNegocio: DatosNegocio;
   etiquetasPersonalizadas: EtiquetaConfig[];
   plantillaWhatsapp: string;
+  canalRespaldoTexto: string;
   moneda: Moneda;
   simboloMoneda: string;
   temaVisual: TemaVisual;
