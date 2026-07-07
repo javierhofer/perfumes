@@ -203,6 +203,17 @@ npm install
 - **Frontend**: removido el indicador del pool en `CrmPage.tsx` (no aplica a Meta). El campo `canalRespaldoTexto` sigue editable en Configuracion, ahora titulado "Mensaje si Meta esta caido".
 - **Variables de entorno**: `WA_TRANSPORT` (default `meta`), `WA_PHONE_ID`, `WA_TOKEN`, `WA_VERIFY_TOKEN`, `WA_APP_SECRET`, `WA_ALLOWED_NUMBERS`. Vars Baileys (`WA_PHONES`, `WA_SESSION_KEY`, etc) quedan en `.env.example` como referencia para rollback.
 
+## 🔧 Correccion `WA_PHONE_ID` (ronda 7.1)
+
+- **Hallazgo**: el `WA_PHONE_ID=1271942282658314` que estaba en el repo y en `CONTEXTO-WHATSAPP.md` correspondía al **Test Number default de Meta** (`+1 555-670-8200`, "Test Number"), no a un numero real. Confirmado con `GET /v25.0/1271942282658314?fields=display_phone_number,verified_name`.
+- **Phone ID real**: `1107426182464971` → `+54 9 261 771-0138` (Mendoza), verified_name = "perfumessa", quality_rating = GREEN. Ese fue el que respondio al curl outbound con `200 OK` y `message_status: accepted`.
+- **Token validado**: el que termina en `...ZAW4lNkwZDZD` (empieza con `EAAVbalZBxM3ABR6`) tiene permisos sobre el phone_id real.
+- **Cambios**:
+  - `backend/.env` → `WA_PHONE_ID=1107426182464971` (no se commitea)
+  - `CONTEXTO-WHATSAPP.md` → tabla de "Datos de Meta ya recopilados" corregida, con nota aclaratoria
+  - Este `HISTORIAL.md` → ronda 7.1 documentada
+- **Sin cambios de codigo**: el codigo del backend ya leia `WA_PHONE_ID` de env var, solo la config local estaba mal.
+
 ## 🆕 Comando `top` / `mas vendido` (ronda 7)
 
 - **Sintaxis**: `top`, `top N`, `top N Nd` (ej: `top`, `top 10`, `top 5 7d`). Acepta variante `mas vendido` / `mas vendidos` / con acentos (`Más vendido` → parser normaliza con `stripAccents`).
