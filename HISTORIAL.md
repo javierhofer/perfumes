@@ -203,6 +203,19 @@ npm install
 - **Frontend**: removido el indicador del pool en `CrmPage.tsx` (no aplica a Meta). El campo `canalRespaldoTexto` sigue editable en Configuracion, ahora titulado "Mensaje si Meta esta caido".
 - **Variables de entorno**: `WA_TRANSPORT` (default `meta`), `WA_PHONE_ID`, `WA_TOKEN`, `WA_VERIFY_TOKEN`, `WA_APP_SECRET`, `WA_ALLOWED_NUMBERS`. Vars Baileys (`WA_PHONES`, `WA_SESSION_KEY`, etc) quedan en `.env.example` como referencia para rollback.
 
+## 🆕 Comando `top` / `mas vendido` (ronda 7)
+
+- **Sintaxis**: `top`, `top N`, `top N Nd` (ej: `top`, `top 10`, `top 5 7d`). Acepta variante `mas vendido` / `mas vendidos` / con acentos (`Más vendido` → parser normaliza con `stripAccents`).
+- **Comportamiento**: agrupa todas las ventas del período por nombre de producto, suma `cantidad` y `total`, ordena descendente por unidades (desempate por total facturado) y devuelve los N primeros.
+- **Defaults**: cantidad=5, ventana=últimos 30 días. Límite: 20 items por mensaje.
+- **Reutiliza**: `getDateRange()` (commandParser.ts:49) y `ListarVentasUseCase` (sin tocar). `filtrarPorRango` (commandHandlers.ts) compartido con `handleVentas`.
+- **Archivos modificados**:
+  - `src/infrastructure/whatsapp/commandParser.ts` — `TopArgs` interface + `parseTopArgs` + ramas en `parseCommand`
+  - `src/infrastructure/whatsapp/commandHandlers.ts` — `handleTop(args)` que agrupa y rankea
+  - `src/infrastructure/whatsapp/templates.ts` — `TopItem` interface + `formatTopList()` + ayuda actualizada
+  - `src/infrastructure/whatsapp/webhookController.ts` — rama `'top'` en `handleIncoming`
+- **Sin nuevas dependencias**. Backend compila limpio.
+
 ## 📝 Próximas Mejoras Identificadas (no implementadas)
 
 - Módulo de facturación/comprobantes usando la numeración de tickets

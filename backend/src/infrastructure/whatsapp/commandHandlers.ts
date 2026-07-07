@@ -2,12 +2,14 @@ import { ListarVentasUseCase, VentaListadaDTO } from '../../application/use-case
 import { JsonVentaRepository } from '../../infrastructure/persistence/JsonVentaRepository';
 import { JsonClienteRepository } from '../../infrastructure/persistence/JsonClienteRepository';
 import { JsonPerfumeRepository } from '../../infrastructure/persistence/JsonPerfumeRepository';
-import { getDateRange, Ventana } from './commandParser';
+import { getDateRange, Ventana, TopArgs } from './commandParser';
 import {
   formatVentasList,
   formatAyuda,
   formatComandoInvalido,
   formatError,
+  formatTopList,
+  TopItem,
 } from './templates';
 
 const useCase = new ListarVentasUseCase(
@@ -30,6 +32,39 @@ export const handleVentas = async (ventana: Ventana): Promise<string> => {
     return await formatVentasList(filtradas, label);
   } catch (err) {
     console.error('[whatsapp] handleVentas fallo:', err);
+    return formatError();
+  }
+};
+
+export const handleTop = async (args: TopArgs): Promise<string> => {
+  try {
+    const { desde, hasta, label } = getDateRange(args.ventana);
+    const todas = await useCase.execute();
+    const filtradas = filtrarPorRango(todas, desde, hasta);
+
+    const acumulado = new Map<string, TopItem>();
+    for (const v of filtradas) {
+      const key = v.productoNombre;
+      const previo = acumulado.get(key);
+      if (previo) {
+        previo.unidades += v.cantidad;
+        previo.total += v.total;
+      } else {
+        acumulado.set(key, {
+          productoNombre: v.productoNombre,
+          unidades: v.cantidad,
+          total: v.total,
+        });
+      }
+    }
+
+    const ranking = Array.from(acumulado.values())
+      .sort((a, b) => b.unidades - a.unidades || b.total - a.total)
+      .slice(0, args.cantidad);
+
+    return await formatTopList(ranking, label, args.cantidad);
+  } catch (err) {
+    console.error('[whatsapp] handleTop fallo:', err);
     return formatError();
   }
 };

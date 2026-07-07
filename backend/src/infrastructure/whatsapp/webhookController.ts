@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import { parseCommand } from './commandParser';
 import {
   handleVentas,
+  handleTop,
   handleAyuda,
   handleComandoInvalido,
   handleDefault,
@@ -73,7 +74,8 @@ const verifySignature = (rawBody: Buffer, signature: string | undefined): boolea
 const handleIncoming = async (text: string): Promise<string> => {
   const parsed = parseCommand(text);
   if (!parsed) return await handleComandoInvalido();
-  if (parsed.cmd === 'ventas') return await handleVentas(parsed.args!);
+  if (parsed.cmd === 'ventas') return await handleVentas(parsed.args as Parameters<typeof handleVentas>[0]);
+  if (parsed.cmd === 'top') return await handleTop(parsed.args as Parameters<typeof handleTop>[0]);
   if (parsed.cmd === 'ayuda') return await handleAyuda();
   return await handleDefault();
 };

@@ -76,6 +76,48 @@ export const formatVentasList = async (
   return lines.join('\n');
 };
 
+export interface TopItem {
+  productoNombre: string;
+  unidades: number;
+  total: number;
+}
+
+export const formatTopList = async (
+  items: TopItem[],
+  labelPeriodo: string,
+  cantidadPedida: number
+): Promise<string> => {
+  const simbolo = await obtenerSimboloMoneda();
+  const totalFacturado = items.reduce((acc, it) => acc + it.total, 0);
+
+  if (items.length === 0) {
+    return [
+      `TOP ${cantidadPedida} (${labelPeriodo})`,
+      ``,
+      `No se registran ventas en ese periodo.`,
+    ].join('\n');
+  }
+
+  const lines: string[] = [];
+  lines.push(`TOP ${cantidadPedida} PERFUMES (${labelPeriodo.toUpperCase()})`);
+  lines.push(``);
+
+  items.forEach((it, idx) => {
+    const n = `${idx + 1}.`;
+    lines.push(`${n} ${it.productoNombre}`);
+    lines.push(
+      `   x${it.unidades} unidades - ${fmtMoney(it.total, simbolo)}`
+    );
+  });
+
+  lines.push(``);
+  lines.push(
+    `Total facturado: ${fmtMoney(totalFacturado, simbolo)}`
+  );
+
+  return lines.join('\n');
+};
+
 export const formatAyuda = (): string =>
   [
     `COMANDOS DISPONIBLES`,
@@ -84,6 +126,9 @@ export const formatAyuda = (): string =>
     `ventas 7d / 15d / 90d - Ventas de los ultimos N dias`,
     `ventas hoy - Ventas del dia de hoy`,
     `ventas mes - Ventas del mes en curso`,
+    `top / mas vendido - Top 5 perfumes mas vendidos (ultimos 30 dias)`,
+    `top N - Top N perfumes (ej: top 10)`,
+    `top N 7d - Top N perfumes de los ultimos 7 dias`,
     `ayuda - Muestra este mensaje`,
     ``,
     `Tip: los mensajes no distinguen tildes ni mayusculas.`,
