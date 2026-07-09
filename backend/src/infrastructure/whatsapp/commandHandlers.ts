@@ -2,7 +2,7 @@ import { ListarVentasUseCase, VentaListadaDTO } from '../../application/use-case
 import { JsonVentaRepository } from '../../infrastructure/persistence/JsonVentaRepository';
 import { JsonClienteRepository } from '../../infrastructure/persistence/JsonClienteRepository';
 import { JsonPerfumeRepository } from '../../infrastructure/persistence/JsonPerfumeRepository';
-import { getDateRange, Ventana, TopArgs } from './commandParser';
+import { getDateRange, Ventana, TopArgs, Lang } from './commandParser';
 import {
   formatVentasList,
   formatAyuda,
@@ -24,21 +24,21 @@ const filtrarPorRango = (ventas: VentaListadaDTO[], desde: Date, hasta: Date): V
   return ventas.filter((v) => v.fecha >= desdeIso && v.fecha <= hastaIso);
 };
 
-export const handleVentas = async (ventana: Ventana): Promise<string> => {
+export const handleVentas = async (ventana: Ventana, lang: Lang = 'es'): Promise<string> => {
   try {
-    const { desde, hasta, label } = getDateRange(ventana);
+    const { desde, hasta, label } = getDateRange(ventana, new Date(), lang);
     const todas = await useCase.execute();
     const filtradas = filtrarPorRango(todas, desde, hasta);
-    return await formatVentasList(filtradas, label);
+    return await formatVentasList(filtradas, label, lang);
   } catch (err) {
     console.error('[whatsapp] handleVentas fallo:', err);
-    return formatError();
+    return formatError(lang);
   }
 };
 
-export const handleTop = async (args: TopArgs): Promise<string> => {
+export const handleTop = async (args: TopArgs, lang: Lang = 'es'): Promise<string> => {
   try {
-    const { desde, hasta, label } = getDateRange(args.ventana);
+    const { desde, hasta, label } = getDateRange(args.ventana, new Date(), lang);
     const todas = await useCase.execute();
     const filtradas = filtrarPorRango(todas, desde, hasta);
 
@@ -62,16 +62,18 @@ export const handleTop = async (args: TopArgs): Promise<string> => {
       .sort((a, b) => b.unidades - a.unidades || b.total - a.total)
       .slice(0, args.cantidad);
 
-    return await formatTopList(ranking, label, args.cantidad);
+    return await formatTopList(ranking, label, args.cantidad, lang);
   } catch (err) {
     console.error('[whatsapp] handleTop fallo:', err);
-    return formatError();
+    return formatError(lang);
   }
 };
 
-export const handleAyuda = async (): Promise<string> => formatAyuda();
+export const handleAyuda = async (lang: Lang = 'es'): Promise<string> => formatAyuda(lang);
 
-export const handleComandoInvalido = async (): Promise<string> => formatComandoInvalido();
+export const handleComandoInvalido = async (lang: Lang = 'es'): Promise<string> => formatComandoInvalido(lang);
 
-export const handleDefault = async (): Promise<string> =>
-  `Comando no reconocido. Escribi *ayuda* para ver los comandos disponibles.`;
+export const handleDefault = async (lang: Lang = 'es'): Promise<string> =>
+  lang === 'en'
+    ? `Command not recognized. Type *help* to see available commands.`
+    : `Comando no reconocido. Escribi *ayuda* para ver los comandos disponibles.`;

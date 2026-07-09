@@ -1,6 +1,6 @@
 import { Router, Request, Response, raw } from 'express';
 import * as crypto from 'crypto';
-import { parseCommand } from './commandParser';
+import { parseCommand, Lang } from './commandParser';
 import {
   handleVentas,
   handleTop,
@@ -11,6 +11,8 @@ import {
 import { sendTextMessage, getTransport } from './whatsappClient';
 import { PhonePool } from './phonePool';
 import { BaileysTransport } from './transport/BaileysTransport';
+import { cargarDB } from '../persistence/jsonStore';
+import { IdiomaBot, CONFIG_DEFAULT } from '../../domain/entities/Configuracion';
 
 export interface WhatsappMessage {
   from: string;
@@ -71,13 +73,29 @@ const verifySignature = (rawBody: Buffer, signature: string | undefined): boolea
   return crypto.timingSafeEqual(sigBuf, expBuf);
 };
 
+const resolveLang = (detected: Lang): Lang => {
+  try {
+    const db = cargarDB();
+    const cfg = (db.configuracion ?? {}) as Partial<{ idiomaBot: IdiomaBot }>;
+    const override = (cfg.idiomaBot ?? CONFIG_DEFAULT.idiomaBot) as IdiomaBot;
+    if (override === 'es' || override === 'en') return override;
+  } catch {
+    /* si el store no esta listo, caemos a autodeteccion */
+  }
+  return detected;
+};
+
 const handleIncoming = async (text: string): Promise<string> => {
   const parsed = parseCommand(text);
-  if (!parsed) return await handleComandoInvalido();
-  if (parsed.cmd === 'ventas') return await handleVentas(parsed.args as Parameters<typeof handleVentas>[0]);
-  if (parsed.cmd === 'top') return await handleTop(parsed.args as Parameters<typeof handleTop>[0]);
-  if (parsed.cmd === 'ayuda') return await handleAyuda();
-  return await handleDefault();
+  if (!parsed) {
+    const lang = resolveLang('es');
+    return await handleComandoInvalido(lang);
+  }
+  const lang = resolveLang(parsed.lang);
+  if (parsed.cmd === 'ventas') return await handleVentas(parsed.args as Parameters<typeof handleVentas>[0], lang);
+  if (parsed.cmd === 'top') return await handleTop(parsed.args as Parameters<typeof handleTop>[0], lang);
+  if (parsed.cmd === 'ayuda') return await handleAyuda(lang);
+  return await handleDefault(lang);
 };
 
 export const ingestMetaMessage = async (

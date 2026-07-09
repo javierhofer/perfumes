@@ -30,6 +30,7 @@ interface DraftWhatsapp { plantillaWhatsapp: string; canalRespaldoTexto: string 
 interface DraftMoneda { moneda: string; simboloMoneda: string }
 interface DraftTema { temaVisual: string }
 interface DraftIdioma { idioma: string }
+interface DraftIdiomaBot { idiomaBot: 'auto' | 'es' | 'en' }
 interface DraftNotifs { notificacionesActivas: boolean }
 interface DraftTickets { prefijo: string; siguiente: number }
 
@@ -71,6 +72,7 @@ export const ConfiguracionPage = () => {
   const moneda = useSeccion<DraftMoneda>({ moneda: config.moneda, simboloMoneda: config.simboloMoneda });
   const tema = useSeccion<DraftTema>({ temaVisual: config.temaVisual });
   const idioma = useSeccion<DraftIdioma>({ idioma: config.idioma });
+  const idiomaBot = useSeccion<DraftIdiomaBot>({ idiomaBot: config.idiomaBot ?? 'auto' });
   const notifs = useSeccion<DraftNotifs>({ notificacionesActivas: config.notificacionesActivas });
   const tickets = useSeccion<DraftTickets>({ ...config.numeracionTickets });
 
@@ -377,6 +379,34 @@ export const ConfiguracionPage = () => {
               }`}
             >
               {lng === 'es' ? '🇪🇸 Espanol' : '🇬🇧 English'}
+            </button>
+          ))}
+        </div>
+      </SeccionConfig>
+
+      <SeccionConfig titulo="Idioma del Bot de WhatsApp" icono="💬" descripcion="Idioma en el que responde el bot cuando le escribis a la linea del chip" defaultOpen={false}>
+        <div className="space-y-2">
+          {([
+            { value: 'auto', label: '🪄 Auto (detecta segun tu mensaje)', desc: 'Español si la palabra es comunmente castellana, ingles en caso contrario.' },
+            { value: 'es', label: '🇪🇸 Siempre espanol', desc: 'ventas / top / ayuda / ventas hoy' },
+            { value: 'en', label: '🇬🇧 Siempre ingles', desc: 'sales / top / help / sales today' },
+          ] as const).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => {
+                idiomaBot.setDraft({ idiomaBot: opt.value });
+                guardar(idiomaBot, { idiomaBot: opt.value });
+              }}
+              className={`w-full text-left px-4 py-3 rounded-lg border-2 text-sm transition-colors ${
+                idiomaBot.draft.idiomaBot === opt.value
+                  ? 'border-brand-600 bg-brand-50 dark:bg-brand-900/30'
+                  : 'border-slate-300 dark:border-slate-600 hover:border-brand-400'
+              }`}
+            >
+              <div className={`font-medium ${idiomaBot.draft.idiomaBot === opt.value ? 'text-brand-700 dark:text-brand-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                {opt.label}
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{opt.desc}</div>
             </button>
           ))}
         </div>

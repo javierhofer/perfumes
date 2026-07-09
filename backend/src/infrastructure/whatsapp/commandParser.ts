@@ -3,6 +3,8 @@ export type Ventana =
   | { kind: 'hoy' }
   | { kind: 'mes' };
 
+export type Lang = 'es' | 'en';
+
 const stripAccents = (s: string): string =>
   s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -17,19 +19,27 @@ export interface TopArgs {
 export interface ParsedCommand {
   cmd: 'ventas' | 'ayuda' | 'top';
   args: Ventana | TopArgs | null;
+  lang: Lang;
 }
+
+const detectLang = (norm: string): Lang => {
+  if (/\b(ayuda|comandos|hola|mes|hoy|esto|este|ultima|ultimo|ultimos|ultimas|mas|vendido|vendidos)\b/.test(norm)) {
+    return 'es';
+  }
+  return 'en';
+};
 
 const parseVentasArgs = (raw: string): Ventana | null => {
   if (!raw) return { kind: 'dias', dias: 30 };
 
-  const numMatch = raw.match(/^(\d+)\s*d(?:ias?)?$/);
+  const numMatch = raw.match(/^(\d+)\s*d(?:ias?|ays?)?$/);
   if (numMatch) {
     const n = parseInt(numMatch[1], 10);
     if (n > 0 && n <= 365) return { kind: 'dias', dias: n };
   }
 
-  if (raw === 'hoy') return { kind: 'hoy' };
-  if (raw === 'mes' || raw === 'este mes') return { kind: 'mes' };
+  if (raw === 'hoy' || raw === 'today') return { kind: 'hoy' };
+  if (raw === 'mes' || raw === 'este mes' || raw === 'month' || raw === 'this month') return { kind: 'mes' };
 
   return null;
 };
@@ -39,14 +49,14 @@ const TOP_MAX = 20;
 const parseWindowToken = (raw: string): Ventana | null => {
   if (!raw) return { kind: 'dias', dias: 30 };
 
-  const numMatch = raw.match(/^(\d+)\s*d(?:ias?)?$/);
+  const numMatch = raw.match(/^(\d+)\s*d(?:ias?|ays?)?$/);
   if (numMatch) {
     const n = parseInt(numMatch[1], 10);
     if (n > 0 && n <= 365) return { kind: 'dias', dias: n };
   }
 
-  if (raw === 'hoy') return { kind: 'hoy' };
-  if (raw === 'mes' || raw === 'este mes') return { kind: 'mes' };
+  if (raw === 'hoy' || raw === 'today') return { kind: 'hoy' };
+  if (raw === 'mes' || raw === 'este mes' || raw === 'month' || raw === 'this month') return { kind: 'mes' };
 
   return null;
 };
@@ -79,14 +89,19 @@ export const parseCommand = (text: string): ParsedCommand | null => {
   const norm = normalize(text);
   if (!norm) return null;
 
-  if (norm === 'ayuda' || norm === 'help' || norm === 'comandos') {
-    return { cmd: 'ayuda', args: null };
+  const lang = detectLang(norm);
+
+  if (norm === 'ayuda' || norm === 'help' || norm === 'comandos' || norm === 'commands') {
+    return { cmd: 'ayuda', args: null, lang };
   }
 
-  if (norm === 'ventas' || norm.startsWith('ventas ')) {
-    const args = parseVentasArgs(norm.slice('ventas'.length).trim());
+  if (norm === 'ventas' || norm.startsWith('ventas ') || norm === 'sales' || norm.startsWith('sales ')) {
+    const stem = norm.startsWith('ventas')
+      ? norm.slice('ventas'.length).trim()
+      : norm.slice('sales'.length).trim();
+    const args = parseVentasArgs(stem);
     if (args === null) return null;
-    return { cmd: 'ventas', args };
+    return { cmd: 'ventas', args, lang };
   }
 
   if (
@@ -95,20 +110,29 @@ export const parseCommand = (text: string): ParsedCommand | null => {
     norm === 'mas vendidos' ||
     norm.startsWith('top ') ||
     norm.startsWith('mas vendido ') ||
-    norm.startsWith('mas vendidos ')
+    norm.startsWith('mas vendidos ') ||
+    norm === 'best' ||
+    norm === 'bestsellers' ||
+    norm === 'best sellers' ||
+    norm.startsWith('best ')
   ) {
-    const stem = norm.startsWith('top')
-      ? norm.slice('top'.length).trim()
-      : norm.replace(/^mas vendidos?/, '').trim();
+    let stem: string;
+    if (norm.startsWith('top ')) stem = norm.slice('top'.length).trim();
+    else if (norm.startsWith('mas vendido')) stem = norm.replace(/^mas vendidos?/, '').trim();
+    else stem = norm.replace(/^best sellers?/, '').trim();
     const args = parseTopArgs(stem);
     if (args === null) return null;
-    return { cmd: 'top', args };
+    return { cmd: 'top', args, lang };
   }
 
   return null;
 };
 
-export const getDateRange = (ventana: Ventana, ref: Date = new Date()): { desde: Date; hasta: Date; label: string } => {
+export const getDateRange = (
+  ventana: Ventana,
+  ref: Date = new Date(),
+  lang: Lang = 'es'
+): { desde: Date; hasta: Date; label: string } => {
   const hasta = new Date(ref);
   hasta.setHours(23, 59, 59, 999);
 
@@ -117,19 +141,20 @@ export const getDateRange = (ventana: Ventana, ref: Date = new Date()): { desde:
   switch (ventana.kind) {
     case 'hoy':
       desde.setHours(0, 0, 0, 0);
-      return { desde, hasta, label: 'hoy' };
+      return { desde, hasta, label: lang === 'en' ? 'today' : 'hoy' };
 
     case 'mes': {
       desde.setDate(1);
       desde.setHours(0, 0, 0, 0);
-      const mes = desde.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
-      return { desde, hasta, label: `mes de ${mes}` };
+      const locale = lang === 'en' ? 'en-US' : 'es-AR';
+      const mes = desde.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+      return { desde, hasta, label: lang === 'en' ? `month of ${mes}` : `mes de ${mes}` };
     }
 
     case 'dias': {
       desde.setDate(desde.getDate() - ventana.dias);
       desde.setHours(0, 0, 0, 0);
-      return { desde, hasta, label: `ultimos ${ventana.dias} dias` };
+      return { desde, hasta, label: lang === 'en' ? `last ${ventana.dias} days` : `ultimos ${ventana.dias} dias` };
     }
   }
 };

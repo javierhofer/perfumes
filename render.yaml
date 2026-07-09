@@ -1,0 +1,38 @@
+# Render Blueprint para perfumes-tovo
+# Servicio: backend Node + TypeScript + Express.
+# Activar: dashboard.render.com > New > Blueprint > apuntar a este repo.
+#
+# WA_SESSION_KEY (32 bytes hex, generado con crypto.randomBytes) se carga
+# a mano desde el dashboard como "Secret".
+#
+# Para volver a Meta: ver CONTEXTO-WHATSAPP-META.md y reemplazar este YAML.
+
+services:
+  - type: web
+    name: perfumes-tovo
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WA_TRANSPORT
+        value: baileys
+      - key: WA_PHONES
+        value: chip1:5492617629556
+      - key: WA_ALLOWED_NUMBERS
+        value: 542616152378,542616609937
+      - key: WA_MAX_PER_HOUR
+        value: "30"
+      - key: WA_WARMUP_DAYS
+        value: "0"
+      - key: WA_SHADOWBAN_THRESHOLD
+        value: "0.3"
+      - key: WA_BACKUP_CONTACT
+        value: "542616152378"
+      # WA_SESSION_KEY se carga como Secret desde el dashboard.

@@ -28,6 +28,7 @@ export const CONFIG_DEFAULT: Configuracion = {
   simboloMoneda: '$',
   temaVisual: 'claro',
   idioma: 'es',
+  idiomaBot: 'auto',
   notificacionesActivas: false,
   numeracionTickets: {
     prefijo: 'V-',

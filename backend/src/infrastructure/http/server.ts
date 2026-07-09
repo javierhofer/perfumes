@@ -36,7 +36,20 @@ const PORT = Number(process.env.PORT) || 3001;
         console.log(`[server] WhatsApp webhook activo (Meta Cloud API) para phone_id=${process.env.WA_PHONE_ID}`);
       }
     } else {
-      console.log(`[server] WhatsApp driver=baileys, pool=${process.env.WA_PHONES ?? '(vacio)'}`);
+      const phones = process.env.WA_PHONES ?? '';
+      if (!phones.trim()) {
+        console.warn('[server] WhatsApp driver=baileys pero WA_PHONES vacio. El pool no tendra chips.');
+      } else {
+        console.log(`[server] WhatsApp driver=baileys, pool=${phones}`);
+        console.log(`   GET    /webhook/qr/:phoneId   (QR PNG para escanear con WhatsApp)`);
+        console.log(`   GET    /webhook/status        (estado del pool)`);
+      }
+      if (!process.env.WA_SESSION_KEY) {
+        console.warn('[server] WA_SESSION_KEY no seteado. La sesion Baileys NO se cifrara (inseguro en deploys).');
+      }
+      if (!process.env.WA_ALLOWED_NUMBERS?.trim()) {
+        console.warn('[server] WA_ALLOWED_NUMBERS vacio. Todos los mensajes seran rechazados (defensa por default).');
+      }
     }
   });
 })();

@@ -121,6 +121,7 @@ export interface PagoResultado {
 export type Moneda = 'ARS' | 'USD' | 'EUR';
 export type TemaVisual = 'claro' | 'oscuro';
 export type Idioma = 'es' | 'en';
+export type IdiomaBot = 'auto' | 'es' | 'en';
 
 export interface EtiquetaConfig {
   nombre: string;
@@ -152,6 +153,7 @@ export interface Configuracion {
   simboloMoneda: string;
   temaVisual: TemaVisual;
   idioma: Idioma;
+  idiomaBot: IdiomaBot;
   notificacionesActivas: boolean;
   numeracionTickets: NumeracionTickets;
 }
