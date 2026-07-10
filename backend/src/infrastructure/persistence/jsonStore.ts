@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-const DATA_DIR = path.resolve(__dirname, '../../../data');
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.resolve(__dirname, '../../../data');
 const DB_PATH = path.join(DATA_DIR, 'db.json');
 
 export interface DatabaseShape {

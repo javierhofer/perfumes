@@ -39,7 +39,10 @@ export const decryptJson = <T = unknown>(buf: Buffer): T => {
 };
 
 export const authDir = (): string => {
-  const dir = path.resolve(process.cwd(), 'data', 'auth');
+  const base = process.env.DATA_DIR
+    ? path.resolve(process.env.DATA_DIR)
+    : path.resolve(process.cwd(), 'data');
+  const dir = path.join(base, 'auth');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   return dir;
 };
