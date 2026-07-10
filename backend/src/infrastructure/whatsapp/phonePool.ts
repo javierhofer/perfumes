@@ -102,6 +102,12 @@ export class PhonePool extends EventEmitter {
         console.log(`[phonePool] ${id} -> ${status}${info?.['reason'] ? ' (' + info['reason'] + ')' : ''}`);
         this.events.onPhoneStatus(id, status, info);
 
+        if (status === 'close' && info?.['reason'] === 'QR refs attempts ended') {
+          console.warn(
+            `[WHATSAPP-WARN] ${id}: el handshake de QR no llego a tiempo desde Render. Pista: si Render free estaba dormido, esperá 30s despues del deploy antes de re-escanear, o proba 2-3 veces consecutivas.`
+          );
+        }
+
         if (status === 'banned' && previous !== 'banned') {
           notifyAdmin(
             `[Perfumes Bot] Chip ${id} BANEADO`,

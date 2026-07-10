@@ -3,6 +3,7 @@ import makeWASocket, {
   DisconnectReason,
   WASocket,
   proto,
+  initAuthCreds,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import {
@@ -13,6 +14,7 @@ import {
 } from './WhatsappTransport';
 import {
   loadCreds,
+  loadCredsOrReset,
   saveCreds,
   phoneDir,
 } from '../session/store';
@@ -27,6 +29,7 @@ export class BaileysTransport implements WhatsappTransport {
   private currentQR: string | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private intentionalClose = false;
+  private reconnectAttempts = 0;
 
   constructor(phoneId: string) {
     this.phoneId = phoneId;
@@ -65,7 +68,7 @@ export class BaileysTransport implements WhatsappTransport {
 
   private async openSocket(): Promise<void> {
     const dir = AUTH_DIR(this.phoneId);
-    const creds = loadCreds<ReturnType<typeof initAuthCreds>>(this.phoneId);
+    const creds = loadCredsOrReset<ReturnType<typeof initAuthCreds>>(this.phoneId);
 
     const { state, saveCreds: baileySaveCreds } = await makeWASocketState(dir, creds ?? undefined);
 
@@ -98,6 +101,7 @@ export class BaileysTransport implements WhatsappTransport {
       if (connection === 'open') {
         this.currentQR = null;
         this.status = 'open';
+        this.reconnectAttempts = 0;
         console.log(`[Baileys:${this.phoneId}] Conectado.`);
         this.events.onStatus?.('open');
         return;
@@ -125,8 +129,12 @@ export class BaileysTransport implements WhatsappTransport {
         this.events.onStatus?.('close', { reason, statusCode });
 
         if (!this.intentionalClose) {
-          console.log(`[Baileys:${this.phoneId}] Desconectado (${reason}), reintentando en 5s...`);
-          this.scheduleReconnect();
+          this.reconnectAttempts++;
+          const delay = Math.min(5000 * Math.pow(1.5, this.reconnectAttempts - 1), 30000);
+          console.log(
+            `[Baileys:${this.phoneId}] Desconectado (${reason}), reintento #${this.reconnectAttempts} en ${Math.round(delay / 1000)}s...`
+          );
+          this.scheduleReconnect(delay);
         }
       }
     });
@@ -140,7 +148,7 @@ export class BaileysTransport implements WhatsappTransport {
     });
   }
 
-  private scheduleReconnect(): void {
+  private scheduleReconnect(delayMs = 5000): void {
     if (this.reconnectTimer) return;
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
@@ -148,10 +156,10 @@ export class BaileysTransport implements WhatsappTransport {
         this.openSocket().catch((e) => {
           console.error(`[Baileys:${this.phoneId}] reconnect fallo:`, e);
           this.events.onError?.(e);
-          this.scheduleReconnect();
+          this.scheduleReconnect(5000);
         });
       }
-    }, 5000);
+    }, delayMs);
   }
 
   private parseIncoming(msg: proto.IWebMessageInfo): IncomingMessage | null {
@@ -202,8 +210,6 @@ const numberToJid = (to: string): string => {
   const clean = to.replace(/[^\d]/g, '');
   return `${clean}@s.whatsapp.net`;
 };
-
-import { initAuthCreds } from '@whiskeysockets/baileys';
 
 const makeWASocketState = async (
   _dir: string,

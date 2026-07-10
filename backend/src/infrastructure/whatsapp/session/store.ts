@@ -65,6 +65,27 @@ export const loadCreds = <T = unknown>(phoneId: string): T | null => {
   }
 };
 
+export const loadCredsOrReset = <T = unknown>(phoneId: string): T | null => {
+  const p = credsPath(phoneId);
+  if (!fs.existsSync(p)) return null;
+  try {
+    const buf = fs.readFileSync(p);
+    return decryptJson<T>(buf);
+  } catch (err) {
+    console.warn(
+      `[WHATSAPP-WARN] creds.bin de ${phoneId} corrupto o no se puede descifrar. Reseteando sesion para forzar QR limpio.`,
+      err
+    );
+    try {
+      fs.unlinkSync(p);
+      console.warn(`[WHATSAPP-WARN] creds.bin eliminado. Reconectar el chip escaneando el QR nuevo.`);
+    } catch (e2) {
+      console.error(`[WHATSAPP-CRITICAL] No pude borrar creds.bin de ${phoneId}:`, e2);
+    }
+    return null;
+  }
+};
+
 export const saveCreds = <T = unknown>(phoneId: string, data: T): void => {
   const enc = encryptJson(data);
   fs.writeFileSync(credsPath(phoneId), enc);
