@@ -49,6 +49,22 @@ npm run seed -- --force
 
 O eliminar `backend/data/db.json` y reiniciar.
 
+### 4. Deploy en Fly.io (recomendado para Baileys)
+
+Render free tier duerme cada 15 min y rompe el handshake MultiDevice de WhatsApp. **Fly.io free tier es compatible**: no duerme, tiene disco persistente gratis, baja latencia. Pasos:
+
+```bash
+# Instalar CLI: https://fly.io/docs/hands-on/install-flyctl/
+fly auth login
+fly launch --name perfumes-tovo --region eze --no-deploy
+fly volumes create perfumes_data --size 1 --region eze
+fly secrets set WA_TRANSPORT=baileys WA_PHONES=chip1:5492617629556 WA_SESSION_KEY=<tu-clave-32-bytes-hex> WA_ALLOWED_NUMBERS=542616152378,542616609937
+fly deploy
+fly logs
+```
+
+URL de la app: `https://perfumes-tovo.fly.dev`. Detalles completos en `CONTEXTO-WHATSAPP.md`.
+
 ## Funcionalidades
 
 - **Dashboard** con metricas (ventas totales, ganancia neta, stock, cuentas por cobrar), grafico de flujo de ventas y panel de alertas criticas.

@@ -1,11 +1,17 @@
 # Render Blueprint para perfumes-tovo
+# --------------------------------------------------------------
+# DEPRECATED: usamos Fly.io (ver fly.toml). Este archivo queda como
+# referencia por si queres volver a Render algun dia.
+# Render free tier duerme cada 15 min y rompe el handshake de Baileys.
+# --------------------------------------------------------------
+#
 # Servicio: backend Node + TypeScript + Express.
 # Activar: dashboard.render.com > New > Blueprint > apuntar a este repo.
 #
 # WA_SESSION_KEY (32 bytes hex, generado con crypto.randomBytes) se carga
 # a mano desde el dashboard como "Secret".
 #
-# Para volver a Meta: ver CONTEXTO-WHATSAPP-META.md y reemplazar este YAML.
+# Para volver a Meta ademas: ver CONTEXTO-WHATSAPP-META.md.
 
 services:
   - type: web

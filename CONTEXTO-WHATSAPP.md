@@ -1,43 +1,39 @@
-# Contexto: Bot de WhatsApp (ronda 8) — Baileys como driver
+# Contexto: Bot de WhatsApp (ronda 9) — Migración a Fly.io + Baileys como driver
 
 ## Resumen en una linea
 
-Migramos el driver de WhatsApp de **Meta Cloud API a Baileys**. Es 100% gratis, no requiere tokens ni App ID de Meta, y todo el codigo estaba commiteado en `ronda 5/6/7.1` (esperando a ser activado). Solo hubo que tocar vars de entorno y la i18n del bot.
+Migramos el deploy del backend de Render free tier a **Fly.io** porque Render free duerme cada 15 min y eso rompe el handshake MultiDevice de Baileys (11 reintentos fallidos con `QR refs attempts ended`). Fly.io free no duerme y tiene disco persistente, lo que mantiene viva la sesión Baileys entre redeploys.
 
-> **Archivo historico**: el viejo `CONTEXTO-WHATSAPP.md` (de la ronda 6/7 Meta Cloud API) se renombro a `CONTEXTO-WHATSAPP-META.md`. Si algun dia queres volver a Meta, todo lo necesario esta ahi.
+> **Archivo historico**: el viejo `CONTEXTO-WHATSAPP.md` (de la ronda 6/7 Meta Cloud API) se renombro a `CONTEXTO-WHATSAPP-META.md`. Si queres volver a Meta, todo lo necesario esta ahi.
 
 ---
 
-## Estado al cierre (9 de julio 2026)
+## Estado al cierre (10 de julio 2026)
 
 ### Hecho
 
 | # | Tarea | Estado |
 |---|---|---|
-| 1 | `backend/.env` migrado a Baileys (sin vars Meta, sin SMTP) | ✅ |
-| 2 | `WA_PHONES=chip1:5492617629556` (linea exclusiva nueva) | ✅ |
-| 3 | `WA_SESSION_KEY` AES-256-GCM generado y guardado en `.env` | ✅ |
-| 4 | `npm run build` (backend) sin errores | ✅ |
-| 5 | `tsc --noEmit` (frontend) sin errores | ✅ |
-| 6 | `npm run dev` local arranca Baileys, genera QR, expone `/webhook/qr/chip1` | ✅ |
-| 7 | i18n es/en implementada en `commandParser`, `commandHandlers`, `templates`, `webhookController` | ✅ |
-| 8 | Selector "Idioma del Bot" agregado a `ConfiguracionPage` | ✅ |
-| 9 | Seccion WhatsApp de `README.md` reescrita para Baileys | ✅ |
-| 10 | `HISTORIAL.md` con la ronda 8 documentada | ✅ |
-| 11 | `CONTEXTO-WHATSAPP-META.md` renombrado (historico) | ✅ |
-| 12 | `backend/.env.example` con Baileys como seccion default | ✅ |
-| 13 | Sacar SMTP/Gmail: baneos y desconexiones se loguean por consola | ✅ |
+| 1 | Round 8: Baileys activado + i18n es/en + SMTP quitado, commiteado a `main` (commits `6ba8a1d`, `aa08a4d`) | ✅ |
+| 2 | Round 9a: fixes para handshake QR en Render (backoff exponencial, loadCredsOrReset, hints en logs) — commits `b124885` y anteriores | ✅ |
+| 3 | Round 9b: setup Fly.io (Dockerfile multi-stage, .dockerignore, fly.toml, jsonStore usa DATA_DIR, session/store usa DATA_DIR) — commit `fdca048` | ✅ |
+| 4 | Backend compila limpio local | ✅ |
+| 5 | Smoke test con `DATA_DIR` validado: db.json y auth/ se crean en la ruta custom | ✅ |
+| 6 | Push a `main` | ✅ |
 
-### Pendiente (cuando estes listo para usar el bot en vivo)
+### Pendiente (manual, lo haces vos)
 
 | # | Tarea | Donde |
 |---|---|---|
-| 1 | Deploy del backend a Render (git push + esperar compilar) | nube |
-| 2 | Cargar las env vars en Render → Environment (sin `WA_SESSION_KEY` viejo: generar uno nuevo) | dashboard de Render |
-| 3 | Esperar el primer arranque y abrir `https://perfumes-tovo.onrender.com/webhook/qr/chip1` | navegador |
-| 4 | Escanear el QR desde el WhatsApp del chip nuevo (otro telefono con senal/WiFi) | telefono |
-| 5 | Confirmar en log: `[Baileys:chip1] Conectado.` | dashboard Render → Logs |
-| 6 | Probar funcional: mandar `ventas hoy` desde `542616152378` o `542616609937` | WhatsApp personal |
+| 1 | Instalar Fly CLI en tu PC | https://fly.io/docs/hands-on/install-flyctl/ |
+| 2 | `fly auth login` | terminal |
+| 3 | `fly launch --name perfumes-tovo --region eze --no-deploy` desde la raiz del repo | terminal |
+| 4 | `fly volumes create perfumes_data --size 1 --region eze` | terminal |
+| 5 | `fly secrets set WA_TRANSPORT=... WA_PHONES=...` con todas las vars | terminal |
+| 6 | `fly deploy` | terminal |
+| 7 | Escuchar logs con `fly logs`, abrir `/webhook/qr/chip1`, escanear QR desde WhatsApp del chip | navegador + telefono |
+| 8 | Probar `ventas hoy` desde tu línea personal (`542616152378`/`542616609937`) | WhatsApp personal |
+| 9 | Apagar el servicio de Render (suspend o delete) | dashboard.render.com |
 
 ---
 
@@ -52,73 +48,89 @@ Migramos el driver de WhatsApp de **Meta Cloud API a Baileys**. Es 100% gratis, 
 | Backup contact (si el pool cae) | `542616152378` |
 | WhatsApp del bot (`+54 9 261 762-9556`) | Chip dedicado — NO usar para chats personales |
 
-## Generacion de `WA_SESSION_KEY`
+## Variables de entorno (las mismas que Render)
 
-Comando para generar uno nuevo si necesitas rotar:
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+En Fly se cargan con `fly secrets set`:
+
 ```
-El actual esta en `backend/.env` (no commiteado). Si lo rotas, **tambien se pierde la sesion** (creds cifrados quedan ilegibles). Hay que re-escanear QR.
+WA_TRANSPORT=baileys
+WA_PHONES=chip1:5492617629556
+WA_SESSION_KEY=019205c0f8f33332ddc94447c475050b1518d342643a40e53eeeed138865a5d6
+WA_ALLOWED_NUMBERS=542616152378,542616609937
+WA_MAX_PER_HOUR=30
+WA_WARMUP_DAYS=0
+WA_SHADOWBAN_THRESHOLD=0.3
+WA_BACKUP_CONTACT=542616152378
+```
+
+`NODE_ENV=production`, `DATA_DIR=/data`, `PORT=3000` ya estan en el `fly.toml` (env block, no son Secret porque no necesitan ocultarse).
+
+## Por qué Fly y no Render
+
+- **Render free tier**: duerme el servicio cada 15 min sin trafico. Baileys genera QRs cada 60s pero cuando vos escaneabas, WhatsApp mandaba el handshake y Render estaba despertando (30-60s de delay). El handshake MultiDevice tiene un timeout interno que se agota. 11 reintentos fallidos consecutivos.
+- **Render plan $7/mes**: sin sleep, pero sin disco persistente. La sesión Baileys se pierde en cada redeploy (no gratuito sin extra config).
+- **Fly.io free**:
+  - Sin sleep (la maquina queda prendida).
+  - Volumen persistente de 1GB gratis (perfumes_data) → sesión Baileys y db.json sobreviven redeploys.
+  - Region eze (Ezeiza, Argentina) → baja latencia al chip.
 
 ## Avisos de baneo/desconexion: solo en logs
 
-No usamos SMTP ni emails. Cuando un chip se banea, se desconecta o se reconecta, el backend lo loguea con prefijo segun corresponda:
+Sin SMTP ni emails. Cuando el chip se banea, se desconecta o reconecta:
 
 | Evento | Prefijo | Nivel |
 |---|---|---|
-| Chip BANEADO por WhatsApp | `[WHATSAPP-CRITICAL]` | `console.error` (visible en rojo en Render) |
-| Chip deslogeado (logout) | `[WHATSAPP-WARN]` | `console.warn` |
-| Chip desconectado mientras estaba operativo | `[WHATSAPP-WARN]` | `console.warn` |
-| Chip reconectado despues de una caida | `[WHATSAPP-RECOVERED]` | `console.log` |
+| Chip BANEADO por WhatsApp | `[WHATSAPP-CRITICAL]` | `console.error` |
+| Chip deslogeado | `[WHATSAPP-WARN]` | `console.warn` |
+| Chip reconectado | `[WHATSAPP-RECOVERED]` | `console.log` |
 
-En Render: `Logs` → filtrar por `WHATSAPP` para ver solo eventos del chip.
-
----
+En Fly: `fly logs` → filtrar por `WHATSAPP`.
 
 ## Endpoints utiles
 
 | Endpoint | Para que |
 |---|---|
-| `GET /webhook` | Estado general (driver, si hay transporte activo) |
-| `GET /webhook/status` | Lista chips del pool con su estado individual |
-| `GET /webhook/qr/chip1` | QR PNG si hay uno pendiente (escanealo desde WhatsApp) |
+| `GET /api/health` | Health check |
+| `GET /webhook` | Estado del pool + driver |
+| `GET /webhook/status` | Lista chips con su estado |
+| `GET /webhook/qr/:phoneId` | QR PNG para escanear |
 
-En local: `http://localhost:3001/webhook/qr/chip1`
-En Render: `https://perfumes-tovo.onrender.com/webhook/qr/chip1`
+URL base: `https://perfumes-tovo.fly.dev`
 
----
+## Migracion de datos desde Render (opcional)
 
-## Decisiones
+Si querés copiar tu `db.json` de local al volumen de Fly:
 
-1. **Por que Baileys y no Meta**: Meta Cloud API exige App ID, token, App Secret, webhook firmado, etc. Baileys usa una sesion de WhatsApp Web. Setup: tener una linea exclusiva + escanear QR. Costo: $0. Riesgo: baneo si haces spam (no es el caso, el bot solo responde consultas a vos).
-2. **Por que i18n**: el chip `5492617629556` puede recibirte de viaje o desde otro pais (vos o un asistente que hable ingles). El bot autodetecta por palabras (`ventas`/`sales`, `hoy`/`today`, etc.). Configurable desde Configuracion > "Idioma del Bot".
-3. **Por que solo logs y no SMTP**: mas simple. Render guarda logs por 30 dias en plan free. Si se llega a banear el chip, los logs `[WHATSAPP-CRITICAL]` quedan para revisarlos despues.
+```powershell
+fly ssh --command "cat > /data/db.json" - < C:\Pruebaperfumes\backend\data\db.json
+```
 
-## Cosas a NO olvidar
+Si arrancas de cero, el seed crea 10 clientes + 18 ventas demo automáticamente.
 
-1. **No uses la linea `+54 9 261 762-9556` para chats personales** — los contactos que la tengan de antes te van a escribir ahi y el bot les va a responder con el mensaje de "no entendido". O reseteas el chip o lo cambias por una linea 100% virgen.
-2. **El chip tiene que estar siempre con senal y encendido**. Si lo guardas en un cajon un dia, WhatsApp te cierra la sesion. Recomendacion: dejarlo en un telefono secundario enchufado con WiFi.
-3. **Render free tier duerme despues de 15 min sin trafico**. Al despertar puede que Baileys haya perdido la conexion (queda logueado con `[WHATSAPP-WARN]`). Workaround: UptimeRobot free pegandole a `/api/health` cada 5 min.
-4. **`WA_SESSION_KEY` no se commitea y no se rota sin consecuencia**: si lo cambias, tenes que escanear QR de nuevo.
-5. **Si el chip se llega a banear**: lee los logs. La salida sera algo asi:
-   ```
-   [WHATSAPP-CRITICAL] [Perfumes Bot] Chip chip1 BANEADO
-     Tu chip chip1 (5492617629556) fue baneado por WhatsApp.
-     ...
-   ```
+## Decisiones tomadas
 
-## Migrar la sesion de local a Render (atajo)
+1. **Driver Baileys**: Gratis, sin tokens Meta, sin baneo probable (uso personal).
+2. **Plataforma Fly.io**: Sin sleep, disco persistente, gratis.
+3. **Region eze**: Mejor latencia para el chip que esta en Argentina.
+4. **Misma WA_SESSION_KEY**: La sesión actual esta vacía (nunca escaneamos), da lo mismo rotar o no.
+5. **i18n es/en**: Mantenida de la ronda 8.
+6. **Sin SMTP**: Mantenido de la limpieza ronda 8/9. Solo logs.
 
-Si ya configuraste el chip en tu maquina local y queres que Render lo herede sin escanear de nuevo:
+## URLs a recordar
 
-1. Local: `npm run dev`, escanear QR, esperar `[Baileys:chip1] Conectado.`.
-2. Apaga el server local.
-3. Copiar `backend/data/sessions/chip1/` desde tu maquina a Render.
-   - Render free tier no tiene disk persistente entre deploys, asi que esta opcion **no funciona en free tier** — hay que escanear QR en Render si o si.
-   - Funciona si usas Render con Persistent Disk ($1/mes) o cualquier VPS.
-
----
+- **App**: https://perfumes-tovo.fly.dev
+- **QR del chip**: https://perfumes-tovo.fly.dev/webhook/qr/chip1
+- **Logs**: `fly logs` (o en https://fly.io/apps/perfumes-tovo/monitoring)
+- **Dashboard Fly**: https://fly.io/apps/perfumes-tovo
 
 ## Como retomar si pasa una semana sin tocar
 
-Abrí `C:\Pruebaperfumes\CONTEXTO-WHATSAPP.md` (este archivo). Decime "retomemos lo del bot" y voy a saber donde quedamos.
+1. Abrí `C:\Pruebaperfumes\CONTEXTO-WHATSAPP.md` (este archivo).
+2. Decime "retomemos lo del bot" y voy a saber donde quedamos.
+
+## Si algo sale mal
+
+- **El bot no responde mensajes**: `fly logs` → filtrar por `Baileys` o `WHATSAPP`.
+- **Sesion perdida**: reescanear QR desde `/webhook/qr/chip1`. La sesión Baileys queda en `/data/auth/chip1/creds.bin` (volumen persistente). Solo se pierde si rotaba `WA_SESSION_KEY` o si el volumen se borra manualmente.
+- **Render free vuelve a tirar**: ya no aplica — estamos en Fly.
+- **Quiero volver a Render**: hay que re-adaptar `jsonStore.ts` y `session/store.ts` para no usar `DATA_DIR`, y eliminar el `Dockerfile` + `.dockerignore` + `fly.toml`. Lleva ~10 min.
