@@ -1,17 +1,17 @@
 # Render Blueprint para perfumes-tovo
 # --------------------------------------------------------------
-# DEPRECATED: usamos Fly.io (ver fly.toml). Este archivo queda como
-# referencia por si queres volver a Render algun dia.
-# Render free tier duerme cada 15 min y rompe el handshake de Baileys.
-# --------------------------------------------------------------
+# Backend Node + TypeScript + Express + bot de Telegram 24/7.
 #
-# Servicio: backend Node + TypeScript + Express.
+# Render free tier duerme cada 15 min sin trafico.
+# Mantener despierto con un cron-job externo cada 14 min
+# apuntando a GET /api/health (ej: cron-job.org, gratis).
+#
+# TELEGRAM_BOT_TOKEN se carga como Secret desde el dashboard.
+# El bot queda ABIERTO (sin whitelist) por decision del usuario.
+#
 # Activar: dashboard.render.com > New > Blueprint > apuntar a este repo.
 #
-# WA_SESSION_KEY (32 bytes hex, generado con crypto.randomBytes) se carga
-# a mano desde el dashboard como "Secret".
-#
-# Para volver a Meta ademas: ver CONTEXTO-WHATSAPP-META.md.
+# Para WhatsApp/Baileys: ver CONTEXTO-WHATSAPP.md y CONTEXTO-WHATSAPP-META.md.
 
 services:
   - type: web
@@ -41,4 +41,7 @@ services:
         value: "0.3"
       - key: WA_BACKUP_CONTACT
         value: "542616152378"
-      # WA_SESSION_KEY se carga como Secret desde el dashboard.
+      # Telegram bot (token se carga como Secret desde el dashboard).
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      # Sin TELEGRAM_ALLOWED_USERS -> bot abierto para cualquiera.
