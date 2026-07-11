@@ -1,8 +1,10 @@
 app = "perfumes-tovo"
 primary_region = "gru"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
 
 [build]
-  dockerfile = "backend/Dockerfile"
+  dockerfile = "Dockerfile"
 
 [env]
   NODE_ENV = "production"
@@ -20,6 +22,8 @@ primary_region = "gru"
   internal_port = 3000
   protocol = "tcp"
   processes = ["app"]
+  auto_stop_machines = false
+  auto_start_machines = true
 
   [[services.ports]]
     port = 443

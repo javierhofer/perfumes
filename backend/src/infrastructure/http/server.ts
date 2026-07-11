@@ -22,34 +22,16 @@ const PORT = Number(process.env.PORT) || 3001;
     console.log(`   GET    /api/dashboard/alertas-stock`);
     console.log(`   GET    /api/configuracion`);
     console.log(`   PUT    /api/configuracion`);
-    console.log(`   GET    /webhook   (WhatsApp handshake + estado)`);
-    console.log(`   POST   /webhook   (WhatsApp mensajes)`);
 
-    const transport = (process.env.WA_TRANSPORT ?? 'meta').toLowerCase();
-    if (transport === 'meta') {
-      const ok = process.env.WA_PHONE_ID && process.env.WA_TOKEN && process.env.WA_VERIFY_TOKEN;
-      if (!ok) {
-        console.warn(
-          '[server] WhatsApp NO configurado: faltan WA_PHONE_ID / WA_TOKEN / WA_VERIFY_TOKEN. El webhook respondara pero no procesara mensajes.'
-        );
-      } else {
-        console.log(`[server] WhatsApp webhook activo (Meta Cloud API) para phone_id=${process.env.WA_PHONE_ID}`);
-      }
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      console.warn(
+        '[server] Telegram NO configurado: falta TELEGRAM_BOT_TOKEN. El bot no iniciara.'
+      );
     } else {
-      const phones = process.env.WA_PHONES ?? '';
-      if (!phones.trim()) {
-        console.warn('[server] WhatsApp driver=baileys pero WA_PHONES vacio. El pool no tendra chips.');
-      } else {
-        console.log(`[server] WhatsApp driver=baileys, pool=${phones}`);
-        console.log(`   GET    /webhook/qr/:phoneId   (QR PNG para escanear con WhatsApp)`);
-        console.log(`   GET    /webhook/status        (estado del pool)`);
-      }
-      if (!process.env.WA_SESSION_KEY) {
-        console.warn('[server] WA_SESSION_KEY no seteado. La sesion Baileys NO se cifrara (inseguro en deploys).');
-      }
-      if (!process.env.WA_ALLOWED_NUMBERS?.trim()) {
-        console.warn('[server] WA_ALLOWED_NUMBERS vacio. Todos los mensajes seran rechazados (defensa por default).');
-      }
+      console.log('[server] Bot de Telegram activo. Comandos: ventas, top, ayuda (es/en).');
+    }
+    if (!process.env.TELEGRAM_ALLOWED_USERS?.trim()) {
+      console.warn('[server] TELEGRAM_ALLOWED_USERS vacio. Todos los mensajes seran rechazados (defensa por default).');
     }
   });
 })();

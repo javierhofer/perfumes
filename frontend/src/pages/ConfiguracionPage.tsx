@@ -26,11 +26,10 @@ interface DraftDeuda { umbralDeudaCritica: number }
 interface DraftCrm { diasRecompra: number }
 interface DraftNegocio { nombre: string; telefono: string; email: string; direccion: string; cuit: string }
 interface DraftEtiquetas { lista: { nombre: string; color: string }[] }
-interface DraftWhatsapp { plantillaWhatsapp: string; canalRespaldoTexto: string }
+interface DraftTelegram { plantillaTelegram: string }
 interface DraftMoneda { moneda: string; simboloMoneda: string }
 interface DraftTema { temaVisual: string }
 interface DraftIdioma { idioma: string }
-interface DraftIdiomaBot { idiomaBot: 'auto' | 'es' | 'en' }
 interface DraftNotifs { notificacionesActivas: boolean }
 interface DraftTickets { prefijo: string; siguiente: number }
 
@@ -65,14 +64,12 @@ export const ConfiguracionPage = () => {
   const crm = useSeccion<DraftCrm>({ diasRecompra: config.diasRecompra });
   const negocio = useSeccion<DraftNegocio>({ ...config.datosNegocio });
   const etiquetas = useSeccion<DraftEtiquetas>({ lista: config.etiquetasPersonalizadas });
-  const whatsapp = useSeccion<DraftWhatsapp>({
-    plantillaWhatsapp: config.plantillaWhatsapp,
-    canalRespaldoTexto: config.canalRespaldoTexto ?? '',
+  const telegram = useSeccion<DraftTelegram>({
+    plantillaTelegram: config.plantillaTelegram,
   });
   const moneda = useSeccion<DraftMoneda>({ moneda: config.moneda, simboloMoneda: config.simboloMoneda });
   const tema = useSeccion<DraftTema>({ temaVisual: config.temaVisual });
   const idioma = useSeccion<DraftIdioma>({ idioma: config.idioma });
-  const idiomaBot = useSeccion<DraftIdiomaBot>({ idiomaBot: config.idiomaBot ?? 'auto' });
   const notifs = useSeccion<DraftNotifs>({ notificacionesActivas: config.notificacionesActivas });
   const tickets = useSeccion<DraftTickets>({ ...config.numeracionTickets });
 
@@ -189,30 +186,19 @@ export const ConfiguracionPage = () => {
           </div>
         </Campo>
 
-        <Campo label="Plantilla de WhatsApp" descripcion="Variables disponibles: {nombre}, {dias}, {perfume}">
+        <Campo label="Plantilla de Telegram" descripcion="Variables disponibles: {nombre}, {dias}, {perfume}">
           <textarea
-            value={whatsapp.draft.plantillaWhatsapp}
-            onChange={(e) => whatsapp.setDraft({ plantillaWhatsapp: e.target.value })}
+            value={telegram.draft.plantillaTelegram}
+            onChange={(e) => telegram.setDraft({ plantillaTelegram: e.target.value })}
             rows={4}
             className="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm resize-none"
           />
-          <div className="mt-3">
-            <Campo label="Mensaje si Meta esta caido" descripcion="Texto que se envia al cliente si el bot no puede responder por una caida de Meta.">
-              <input
-                value={whatsapp.draft.canalRespaldoTexto}
-                onChange={(e) => whatsapp.setDraft({ canalRespaldoTexto: e.target.value })}
-                className="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
-                placeholder="Escribime tambien a hola@tuempresa.com"
-              />
-            </Campo>
-          </div>
           <div className="mt-2">
             <BotonGuardar
-              saving={whatsapp.saving}
-              saved={whatsapp.saved}
-              onClick={() => guardar(whatsapp, {
-                plantillaWhatsapp: whatsapp.draft.plantillaWhatsapp,
-                canalRespaldoTexto: whatsapp.draft.canalRespaldoTexto,
+              saving={telegram.saving}
+              saved={telegram.saved}
+              onClick={() => guardar(telegram, {
+                plantillaTelegram: telegram.draft.plantillaTelegram,
               })}
               label="Guardar plantilla"
             />
@@ -379,34 +365,6 @@ export const ConfiguracionPage = () => {
               }`}
             >
               {lng === 'es' ? '🇪🇸 Espanol' : '🇬🇧 English'}
-            </button>
-          ))}
-        </div>
-      </SeccionConfig>
-
-      <SeccionConfig titulo="Idioma del Bot de WhatsApp" icono="💬" descripcion="Idioma en el que responde el bot cuando le escribis a la linea del chip" defaultOpen={false}>
-        <div className="space-y-2">
-          {([
-            { value: 'auto', label: '🪄 Auto (detecta segun tu mensaje)', desc: 'Español si la palabra es comunmente castellana, ingles en caso contrario.' },
-            { value: 'es', label: '🇪🇸 Siempre espanol', desc: 'ventas / top / ayuda / ventas hoy' },
-            { value: 'en', label: '🇬🇧 Siempre ingles', desc: 'sales / top / help / sales today' },
-          ] as const).map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => {
-                idiomaBot.setDraft({ idiomaBot: opt.value });
-                guardar(idiomaBot, { idiomaBot: opt.value });
-              }}
-              className={`w-full text-left px-4 py-3 rounded-lg border-2 text-sm transition-colors ${
-                idiomaBot.draft.idiomaBot === opt.value
-                  ? 'border-brand-600 bg-brand-50 dark:bg-brand-900/30'
-                  : 'border-slate-300 dark:border-slate-600 hover:border-brand-400'
-              }`}
-            >
-              <div className={`font-medium ${idiomaBot.draft.idiomaBot === opt.value ? 'text-brand-700 dark:text-brand-300' : 'text-slate-700 dark:text-slate-200'}`}>
-                {opt.label}
-              </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{opt.desc}</div>
             </button>
           ))}
         </div>

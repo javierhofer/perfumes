@@ -67,7 +67,7 @@ export interface ClienteRecompra {
   perfumeNombre: string;
   ultimaCompraFecha: string;
   diasSinComprar: number;
-  whatsappUrl: string;
+  telegramUrl: string;
 }
 
 export interface FichaCliente {
@@ -121,7 +121,6 @@ export interface PagoResultado {
 export type Moneda = 'ARS' | 'USD' | 'EUR';
 export type TemaVisual = 'claro' | 'oscuro';
 export type Idioma = 'es' | 'en';
-export type IdiomaBot = 'auto' | 'es' | 'en';
 
 export interface EtiquetaConfig {
   nombre: string;
@@ -147,13 +146,11 @@ export interface Configuracion {
   diasRecompra: number;
   datosNegocio: DatosNegocio;
   etiquetasPersonalizadas: EtiquetaConfig[];
-  plantillaWhatsapp: string;
-  canalRespaldoTexto: string;
+  plantillaTelegram: string;
   moneda: Moneda;
   simboloMoneda: string;
   temaVisual: TemaVisual;
   idioma: Idioma;
-  idiomaBot: IdiomaBot;
   notificacionesActivas: boolean;
   numeracionTickets: NumeracionTickets;
 }

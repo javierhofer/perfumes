@@ -79,15 +79,15 @@ export const CrmPage = () => {
                     </div>
                     <div>
                       <a
-                        href={c.whatsappUrl}
+                        href={c.telegramUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg font-medium shadow-sm"
+                        className="inline-flex items-center gap-1.5 text-xs bg-sky-500 hover:bg-sky-600 text-white px-3 py-2 rounded-lg font-medium shadow-sm"
                       >
-                        <span>💬</span> Contactar por WhatsApp
+                        <span>✈️</span> Contactar por Telegram
                       </a>
                       <div className="text-[10px] text-slate-400 mt-1 max-w-[180px] leading-tight">
-                        Al hacer clic serás redirigido a WhatsApp LLC. Aplican sus{' '}
+                        Al hacer clic serás redirigido a Telegram. Aplican sus{' '}
                         <Link
                           to="/privacidad"
                           target="_blank"

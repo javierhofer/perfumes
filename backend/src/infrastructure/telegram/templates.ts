@@ -217,3 +217,13 @@ export const formatError = (lang: Lang = 'es'): string =>
   lang === 'en'
     ? `Oops, something went wrong querying sales. Try again in a bit. If it persists, check backend logs.`
     : `Ups, algo salio mal al consultar las ventas. Reintentá en un rato. Si persiste, revisá los logs del backend.`;
+
+export const formatStart = (): string =>
+  [
+    `Hola! Soy el bot de Perfumes Tovo.`,
+    ``,
+    `Puedo responder consultas sobre tus ventas y perfumes.`,
+    `Escribi *ayuda* para ver los comandos disponibles.`,
+    ``,
+    `Tambien respondo en ingles si me escribis en ingles.`,
+  ].join('\n');

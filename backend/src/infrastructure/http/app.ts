@@ -8,10 +8,7 @@ import { buildVentasRouter } from './routes/ventas.routes';
 import { buildClientesRouter } from './routes/clientes.routes';
 import { buildDashboardRouter } from './routes/dashboard.routes';
 import { buildConfiguracionRouter } from './routes/configuracion.routes';
-import { buildWhatsappRouter } from '../whatsapp/webhookController';
-import { initPool, getPool } from '../whatsapp/phonePool';
-import { bindMeta, bindPool } from '../whatsapp/whatsappClient';
-import { MetaTransport } from '../whatsapp/transport/MetaTransport';
+import { initTelegramBot } from '../telegram/telegramBot';
 import { StockInsuficienteError, ClienteNoEncontradoError, PerfumeNoEncontradoError } from '../../application/use-cases/RegistrarVentaUseCase';
 import { TelefonoDuplicadoError } from '../../application/use-cases/CrearClienteUseCase';
 import { PagoInvalidoError } from '../../application/use-cases/RegistrarPagoClienteUseCase';
@@ -23,30 +20,7 @@ export const buildApp = async () => {
   const app = express();
   app.use(cors());
 
-  const transport = (process.env.WA_TRANSPORT ?? 'meta').toLowerCase();
-
-  if (transport === 'meta') {
-    const meta = new MetaTransport(
-      process.env.WA_PHONE_ID ?? '',
-      process.env.WA_TOKEN ?? ''
-    );
-    await meta.connect({});
-    bindMeta(meta);
-  } else {
-    const pool = await initPool({
-      onMessage: (msg, phoneId) => {
-        console.log(`[app] inbound desde ${phoneId}: ${msg.text}`);
-      },
-      onPhoneStatus: (phoneId, status) => {
-        console.log(`[app] phone=${phoneId} status=${status}`);
-      },
-    });
-    bindPool(pool);
-  }
-
-  const poolOrNull = transport === 'baileys' ? getPool() : null;
-
-  app.use(buildWhatsappRouter(poolOrNull));
+  await initTelegramBot();
 
   app.use(express.json());
 

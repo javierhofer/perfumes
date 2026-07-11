@@ -31,7 +31,7 @@ export const handleVentas = async (ventana: Ventana, lang: Lang = 'es'): Promise
     const filtradas = filtrarPorRango(todas, desde, hasta);
     return await formatVentasList(filtradas, label, lang);
   } catch (err) {
-    console.error('[whatsapp] handleVentas fallo:', err);
+    console.error('[telegram] handleVentas fallo:', err);
     return formatError(lang);
   }
 };
@@ -64,7 +64,7 @@ export const handleTop = async (args: TopArgs, lang: Lang = 'es'): Promise<strin
 
     return await formatTopList(ranking, label, args.cantidad, lang);
   } catch (err) {
-    console.error('[whatsapp] handleTop fallo:', err);
+    console.error('[telegram] handleTop fallo:', err);
     return formatError(lang);
   }
 };

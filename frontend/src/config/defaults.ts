@@ -21,14 +21,12 @@ export const CONFIG_DEFAULT: Configuracion = {
     { nombre: 'Solo transferencia', color: 'blue' },
     { nombre: 'Cumpleanos pronto', color: 'rose' },
   ],
-  plantillaWhatsapp:
+  plantillaTelegram:
     'Hola {nombre}! Te escribo de tu perfumeria de confianza. Hace {dias} dias que no renovas tu {perfume}. Tengo stock disponible, queres que te reserve uno?',
-  canalRespaldoTexto: '',
   moneda: 'ARS',
   simboloMoneda: '$',
   temaVisual: 'claro',
   idioma: 'es',
-  idiomaBot: 'auto',
   notificacionesActivas: false,
   numeracionTickets: {
     prefijo: 'V-',

@@ -10,7 +10,7 @@ export interface ClienteRecompraDTO {
   perfumeNombre: string;
   ultimaCompraFecha: string;
   diasSinComprar: number;
-  whatsappUrl: string;
+  telegramUrl: string;
 }
 
 const reemplazarVars = (plantilla: string, vars: Record<string, string | number>): string => {
@@ -35,7 +35,7 @@ export class ObtenerClientesParaRecompraUseCase {
       this.configRepo.obtener(),
     ]);
     const diasLimite = config.diasRecompra;
-    const plantilla = config.plantillaWhatsapp;
+    const plantilla = config.plantillaTelegram;
     const ahora = new Date();
     const resultado: ClienteRecompraDTO[] = [];
 
@@ -62,7 +62,7 @@ export class ObtenerClientesParaRecompraUseCase {
             perfume: perfumeNombre,
           })
         );
-        const whatsappUrl = `https://wa.me/${telefonoLimpio}?text=${mensaje}`;
+        const telegramUrl = `https://t.me/${telefonoLimpio}?text=${mensaje}`;
 
         resultado.push({
           clienteId: cliente.id,
@@ -71,7 +71,7 @@ export class ObtenerClientesParaRecompraUseCase {
           perfumeNombre,
           ultimaCompraFecha: ultimaVenta.fecha,
           diasSinComprar: dias,
-          whatsappUrl,
+          telegramUrl,
         });
       }
     }
